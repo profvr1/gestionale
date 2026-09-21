@@ -1,0 +1,856 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Contabilità S.p.A. — gestionale didattico</title>
+<style>
+:root{--ink:#1F2A44;--soft:#5A6B87;--line:#D7DEE8;--bg:#FFF;--panel:#F3F6FA;--panel2:#E6ECF4;
+ --acc:#C25E1A;--blue:#1F6F8B;--red:#B03A2E;--green:#2E7D4F;--shadow:0 1px 2px rgba(31,42,68,.06)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--ink:#E9EDF4;--soft:#9DAABF;--line:#33415A;
+ --bg:#141C2B;--panel:#1C2638;--panel2:#253145;--acc:#E08A4A;--blue:#5FB3CE;--red:#E08070;--green:#69BC8C;--shadow:none}}
+*{box-sizing:border-box}html,body{margin:0;padding:0}
+body{background:var(--bg);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;font-size:15px;line-height:1.45;-webkit-text-size-adjust:100%}
+h1,h2,h3{font-family:Georgia,serif;font-weight:700;margin:0}
+.wrap{max-width:1100px;margin:0 auto;padding:0 12px 80px}
+header{padding:13px 0 7px;display:flex;gap:10px;align-items:baseline;flex-wrap:wrap}
+header h1{font-size:18px}header .az{font-size:12px;color:var(--soft)}
+nav{position:sticky;top:0;z-index:60;background:var(--bg);border-bottom:1px solid var(--line);display:flex;gap:2px;overflow-x:auto;margin:0 -12px;padding:0 6px}
+nav button{flex:0 0 auto;background:none;border:0;border-bottom:2px solid transparent;color:var(--soft);font:inherit;font-size:13.5px;font-weight:600;padding:11px 10px;cursor:pointer;white-space:nowrap}
+nav button.on{color:var(--ink);border-bottom-color:var(--acc)}
+.card{background:var(--panel);border-radius:11px;padding:12px;margin:11px 0;box-shadow:var(--shadow)}
+.card.plain{background:var(--bg);border:1px solid var(--line)}
+.muted{color:var(--soft);font-size:12.5px}
+.tiny{font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;font-weight:700;color:var(--soft);display:block;margin-bottom:3px}
+input,select,textarea{font:inherit;font-size:16px;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:8px 10px;width:100%}
+textarea{min-height:70px;resize:vertical;font-size:14px}
+input:focus,select:focus,textarea:focus{outline:2px solid var(--acc);outline-offset:1px}
+input.num{text-align:right;font-variant-numeric:tabular-nums}
+button.go{background:var(--ink);color:var(--bg);border:0;border-radius:9px;font:inherit;font-size:14px;font-weight:700;padding:10px 16px;cursor:pointer}
+button.gh{background:none;border:1px solid var(--line);color:var(--soft);border-radius:8px;font:inherit;font-size:13px;font-weight:600;padding:8px 12px;cursor:pointer}
+button.gh:hover{border-color:var(--soft)}
+button.gh.on{border-color:var(--acc);color:var(--acc)}
+button.x{background:none;border:0;color:var(--red);font:inherit;font-size:20px;line-height:1;cursor:pointer;padding:0}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.hide{display:none!important}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th,td{text-align:left;padding:5px 6px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-size:10px;letter-spacing:.05em;text-transform:uppercase;color:var(--soft);font-weight:700}
+td.n,th.n{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+tr.tot td{border-top:2px solid var(--ink);border-bottom:0;font-weight:700}
+tr.sub td{font-weight:700;background:var(--panel)}
+.scroll{overflow-x:auto}
+.v{font-size:10px;font-weight:800;padding:1px 5px;border-radius:4px;border:1px solid;white-space:nowrap}
+.v.VFA,.v.VFP{color:var(--blue);border-color:var(--blue)}
+.v.VEN,.v.VEP{color:var(--acc);border-color:var(--acc)}
+.fase{font-size:10px;font-weight:800;padding:1px 6px;border-radius:4px;color:#fff}
+.fase.G{background:var(--blue)}.fase.A{background:var(--red)}.fase.R{background:#7A5AA8}.fase.E{background:var(--green)}.fase.C{background:var(--soft)}
+.intest{display:grid;grid-template-columns:minmax(0,1fr) 84px 84px 22px;gap:5px;padding:2px 0}
+.intest span{font-size:10px;letter-spacing:.06em;text-transform:uppercase;font-weight:700;color:var(--soft)}
+.intest span.n{text-align:right}
+.riga{display:grid;grid-template-columns:minmax(0,1fr) 84px 84px 22px;gap:5px;align-items:center;padding:6px 0;border-bottom:1px dashed var(--line)}
+.riga input{padding:7px 7px;font-size:15px}
+.riga .nat{grid-column:1/-1;font-size:11px;color:var(--soft);line-height:1.3;min-height:0}
+.riga .nat:empty{display:none}
+@media(min-width:720px){.riga,.intest{grid-template-columns:minmax(0,1fr) 130px 130px 28px;gap:8px}}
+.avviso{font-size:12px;color:var(--soft);background:var(--panel);border-radius:8px;padding:7px 10px;margin:8px 0;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.avviso b{color:var(--ink)}
+.eseli{display:flex;gap:9px;align-items:center;padding:10px 12px;border:1px solid var(--line);border-radius:9px;margin:7px 0;cursor:pointer;background:var(--bg)}
+.eseli:hover{border-color:var(--acc)}
+.eseli b{flex:1;font-size:14px}
+.sitt{text-align:center;font-size:17px;margin:20px 0 2px;letter-spacing:.2px}
+.pick{position:relative}
+.pick .cc{padding-right:30px}
+.pick .lens{position:absolute;right:3px;top:50%;transform:translateY(-50%);width:26px;height:26px;border:0;background:none;color:var(--soft);cursor:pointer;padding:0;display:flex;align-items:center;justify-content:center}
+.pick .lens:hover{color:var(--acc)}
+.ovl{position:fixed;inset:0;z-index:300;background:rgba(15,20,32,.45);display:flex;align-items:flex-end;justify-content:center}
+.pbox{background:var(--bg);width:100%;max-width:640px;max-height:88vh;border-radius:14px 14px 0 0;display:flex;flex-direction:column;box-shadow:0 -6px 30px rgba(0,0,0,.25)}
+@media(min-width:720px){.ovl{align-items:center}.pbox{border-radius:14px;max-height:80vh}}
+.pbox .ph{display:flex;gap:8px;padding:12px;border-bottom:1px solid var(--line)}
+.pbox .pl0{overflow:auto;padding:4px 12px 14px}
+.pkg{border-bottom:1px solid var(--line)}
+.pkg>summary{padding:10px 2px;cursor:pointer;list-style:none;font-weight:600;font-size:13.5px;display:flex;gap:8px}
+.pkg>summary::-webkit-details-marker{display:none}
+.pkg>summary span{margin-left:auto;color:var(--soft);font-size:11.5px;font-weight:700}
+.pki{padding:9px 6px;cursor:pointer;font-size:14px;border-top:1px dashed var(--line)}
+.pki:hover{background:var(--panel2)}
+.pki b{font-variant-numeric:tabular-nums;color:var(--acc);font-size:11.5px;margin-right:7px}
+.pki span{display:block;color:var(--soft);font-size:11px}
+.pick .lst{position:absolute;z-index:80;left:0;right:0;top:100%;max-height:250px;overflow:auto;background:var(--bg);border:1px solid var(--line);border-radius:9px;box-shadow:0 8px 24px rgba(31,42,68,.16);margin-top:3px}
+.pick .it{padding:8px 10px;cursor:pointer;font-size:13.5px;border-bottom:1px solid var(--line)}
+.pick .it:last-child{border-bottom:0}.pick .it:hover{background:var(--panel2)}
+.pick .it b{font-variant-numeric:tabular-nums;color:var(--acc);font-size:11px;margin-right:6px}
+.pick .it span{color:var(--soft);font-size:10.5px;display:block}
+.msg{padding:9px 11px;border-radius:8px;font-size:13px;margin:8px 0}
+.msg.ok{background:color-mix(in srgb,var(--green) 12%,transparent);border:1px solid var(--green)}
+.msg.no{background:color-mix(in srgb,var(--red) 12%,transparent);border:1px solid var(--red)}
+.msg.warn{background:color-mix(in srgb,var(--acc) 12%,transparent);border:1px solid var(--acc)}
+.grid{display:grid;grid-template-columns:1fr;gap:10px}
+@media(min-width:760px){.grid.due{grid-template-columns:1fr 1fr}}
+.art{border:1px solid var(--line);border-radius:10px;margin:8px 0;background:var(--bg)}
+.art>.h{display:flex;gap:9px;align-items:baseline;padding:8px 10px;background:var(--panel);font-size:12.5px;flex-wrap:wrap}
+.art>.h .dt{font-weight:700;font-variant-numeric:tabular-nums}
+.art>.h .ds{flex:1;color:var(--soft);min-width:120px}
+.art>.b{padding:2px 10px 8px}
+.mastro{border:1px solid var(--line);border-radius:10px;margin:8px 0;overflow:hidden}
+.mastro>summary{padding:9px 11px;cursor:pointer;list-style:none;display:flex;gap:9px;align-items:baseline;background:var(--panel);font-size:13.5px}
+.mastro>summary::-webkit-details-marker{display:none}
+.mastro>summary .nm{flex:1;font-weight:600}
+.mastro>summary .sd{font-variant-numeric:tabular-nums;font-weight:700;white-space:nowrap}
+.mastro .in{padding:4px 11px 10px}
+.kpi{display:flex;gap:16px;flex-wrap:wrap;font-variant-numeric:tabular-nums;font-size:12.5px}
+.kpi b{display:block;font-family:Georgia,serif;font-size:17px}
+.step{display:flex;gap:11px;align-items:flex-start;padding:12px;border:1px solid var(--line);border-radius:10px;margin:9px 0;background:var(--bg)}
+.step .nn{flex:0 0 28px;height:28px;border-radius:50%;background:var(--panel2);color:var(--soft);font-weight:800;font-size:13px;display:flex;align-items:center;justify-content:center}
+.step.done .nn{background:var(--green);color:#fff}
+.step .cc{flex:1}.step .cc b{display:block;font-size:14.5px;font-family:Georgia,serif}
+.bil h3{font-size:14px;margin:14px 0 4px;padding-bottom:4px;border-bottom:2px solid var(--ink)}
+.bil .sb{font-size:12.5px;font-weight:700;margin:9px 0 2px;color:var(--acc)}
+.bil table td:first-child{padding-left:0}
+.pl{padding-left:16px}.pl2{padding-left:30px}
+footer{margin-top:22px;padding-top:12px;border-top:1px solid var(--line);color:var(--soft);font-size:11.5px}
+#stampa-area{display:none}
+@media print{
+ nav,header,footer,section,.noprint{display:none!important}
+ #stampa-area{display:block!important}
+ .wrap{max-width:none;padding:0}
+ body{font-size:11px}
+ .pgh{border-bottom:2px solid #000;padding-bottom:6px;margin-bottom:10px}
+ .pgh b{font-size:14px}
+ h3{font-size:12px;margin:12px 0 4px}
+ table{font-size:10px}th,td{padding:2px 4px}
+ .art{border:0;page-break-inside:avoid}.art>.h{background:none;border-bottom:1px solid #999}
+ .brk{page-break-before:always}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header><h1>Contabilità S.p.A.</h1><span class="az" id="az-lab"></span></header>
+<nav>
+  <button data-t="ese" class="on">Esercizio</button>
+  <button data-t="reg">Registra</button>
+  <button data-t="gio">Giornale</button>
+  <button data-t="mas">Mastri</button>
+  <button data-t="sit">Situazione</button>
+  <button data-t="chi">Chiusura</button>
+  <button data-t="bil">Bilancio</button>
+  <button data-t="stp">Stampa</button>
+</nav>
+
+<div class="avviso noprint" id="promemoria"><span>Il lavoro resta <b>solo su questo dispositivo</b>. Prima di chiudere scaricalo.</span><button class="gh" id="prom-exp" style="padding:4px 10px">Scarica ora</button></div>
+<!-- ===== ESERCIZIO ===== -->
+<section id="ese">
+  <div class="card plain" id="ese-box"></div>
+  <div class="row">
+    <button class="gh" id="e-carica">Carica un esercizio</button>
+    <button class="gh" id="e-riprendi">Riprendi un lavoro salvato</button>
+    <input type="file" id="e-file" accept=".json" class="hide">
+  </div>
+  <div id="ese-sito"></div>
+  <details class="card plain hide" id="doc-box" style="margin-top:14px">
+    <summary style="cursor:pointer;font-weight:600;font-size:14px">Per il docente &middot; prepara un esercizio</summary>
+    <div style="margin-top:12px">
+      <span class="tiny">Titolo</span><input id="d-tit" placeholder="es. Esercizio 12 pag. 148">
+      <div style="height:8px"></div>
+      <span class="tiny">Consegna</span><textarea id="d-con" placeholder="Che cosa devono fare gli studenti"></textarea>
+      <div style="height:8px"></div>
+      <div class="row">
+        <div style="flex:0 0 140px"><span class="tiny">Data di chiusura</span><input id="d-dat" value="31/12"></div>
+        <div style="flex:1;min-width:160px"><span class="tiny">Fase di partenza</span>
+          <select id="d-fas"><option value="G">Dall'inizio dell'esercizio</option><option value="A">Dalle scritture di assestamento</option></select></div>
+      </div>
+      <div style="height:10px"></div>
+      <span class="tiny">Incolla la situazione di partenza</span>
+      <textarea id="d-incolla" placeholder="Una riga per conto, per esempio:&#10;Crediti v/clienti  24.400  D&#10;05.01  24400&#10;Debiti v/fornitori  12.200  A&#10;Si pu&ograve; anche incollare da Excel o da Word."></textarea>
+      <div class="row" style="margin-top:6px"><button class="gh" id="d-leggi">Leggi le righe incollate</button></div>
+      <div id="d-esito"></div>
+      <div style="height:12px"></div>
+      <span class="tiny">Conti gi&agrave; aperti (situazione di partenza)</span>
+      <div class="intest"><span>Conto</span><span class="n">Dare</span><span class="n">Avere</span><span></span></div>
+      <div id="d-righe"></div>
+      <div class="row" style="margin-top:8px">
+        <button class="gh" id="d-add">+ Aggiungi conto</button>
+        <span style="flex:1"></span>
+        <span class="muted">Dare <b id="d-td">0,00</b> &nbsp; Avere <b id="d-ta">0,00</b></span>
+      </div>
+      <div id="d-msg"></div>
+      <div class="row" style="margin-top:10px">
+        <button class="go" id="d-exp">Scarica il file dell'esercizio</button>
+      </div>
+      <div id="d-link"></div>
+    </div>
+  </details>
+</section>
+
+<!-- ===== REGISTRA ===== -->
+<section id="reg" class="hide">
+  <div class="card plain">
+    <div class="row" style="margin-bottom:8px">
+      <div style="flex:0 0 190px"><span class="tiny">Fase</span>
+        <select id="r-fase"><option value="G">Scrittura di gestione</option><option value="A">Scrittura di assestamento</option></select></div>
+      <div style="flex:0 0 110px"><span class="tiny">Data</span><input id="r-data" placeholder="gg/mm"></div>
+      <div style="flex:1;min-width:170px"><span class="tiny">Descrizione</span><input id="r-desc" placeholder="es. fattura n. 12 Bianchi"></div>
+    </div>
+    <div class="intest"><span>Conto</span><span class="n">Dare</span><span class="n">Avere</span><span></span></div>
+    <div id="righe"></div>
+    <div class="row" style="margin-top:9px">
+      <button class="gh" id="add-riga">+ Aggiungi riga</button>
+      <span style="flex:1"></span>
+      <span class="muted">Dare <b id="t-d">0,00</b> &nbsp;&nbsp; Avere <b id="t-a">0,00</b></span>
+    </div>
+  </div>
+  <div id="check"></div>
+  <div class="row">
+    <button class="go" id="salva">Registra l'articolo</button>
+    <button class="gh" id="pulisci">Svuota</button>
+    <button class="gh hide" id="annulla-mod">Annulla la modifica</button>
+  </div>
+</section>
+
+<!-- ===== GIORNALE ===== -->
+<section id="gio" class="hide">
+  <div class="card plain"><div class="kpi">
+    <span>Articoli<b id="g-n">0</b></span><span>Totale Dare<b id="g-d">0,00</b></span>
+    <span>Totale Avere<b id="g-a">0,00</b></span><span>Differenza<b id="g-x">0,00</b></span></div>
+    <div class="row" style="margin-top:9px" id="g-filtri">
+      <button class="gh on" data-f="">Tutte</button><button class="gh" data-f="G">Gestione</button>
+      <button class="gh" data-f="A">Assestamento</button><button class="gh" data-f="R">Riepilogo</button><button class="gh" data-f="E">Epilogo</button>
+      <button class="gh" data-f="C">Chiusura</button></div>
+  </div>
+  <div id="giornale"></div>
+</section>
+
+<!-- ===== MASTRI ===== -->
+<section id="mas" class="hide">
+  <div class="card plain"><input type="search" id="m-q" placeholder="Filtra i conti di mastro…"></div>
+  <div id="mastri"></div>
+</section>
+
+<!-- ===== SITUAZIONE ===== -->
+<section id="sit" class="hide">
+  <div class="card plain"><div class="row" id="s-filtri">
+    <button class="gh" data-s="pre">Prima dell'assestamento</button>
+    <button class="gh on" data-s="post">Dopo l'assestamento</button>
+    <button class="gh" data-s="fin">Finale</button></div>
+    <p class="muted" style="margin:7px 0 0" id="s-spieg"></p></div>
+  <div id="situazione"></div>
+</section>
+
+<!-- ===== CHIUSURA ===== -->
+<section id="chi" class="hide"><div id="chiusura"></div></section>
+
+<!-- ===== BILANCIO ===== -->
+<section id="bil" class="hide"><div id="bilancio" class="bil"></div></section>
+
+<!-- ===== STAMPA ===== -->
+<section id="stp" class="hide">
+  <div class="card plain">
+    <span class="tiny">Chi sei</span>
+    <div class="row">
+      <div style="flex:1;min-width:130px"><input id="p-nome" placeholder="Nome"></div>
+      <div style="flex:1;min-width:130px"><input id="p-cogn" placeholder="Cognome"></div>
+      <div style="flex:0 0 110px"><input id="p-cla" placeholder="Classe"></div>
+    </div>
+    <p class="muted" style="margin:8px 0 0">Questi dati compaiono in testa a ogni pagina stampata. Senza, la stampa non parte.</p>
+  </div>
+  <div class="card plain">
+    <span class="tiny">Che cosa stampare</span>
+    <div class="row" id="p-sel">
+      <button class="gh on" data-p="gio">Libro giornale</button>
+      <button class="gh" data-p="mas">Conti di mastro</button>
+      <button class="gh on" data-p="sit">Situazione contabile</button>
+      <button class="gh" data-p="bil">Bilancio</button>
+    </div>
+  </div>
+  <div id="p-msg"></div>
+  <div class="row">
+    <button class="go" id="p-go">Stampa o salva in PDF</button>
+  </div>
+  <div class="card plain" style="margin-top:18px">
+    <span class="tiny">Il tuo lavoro</span>
+    <p class="muted">Si salva da solo su questo dispositivo. In laboratorio i computer sono condivisi: scarica il file prima di chiudere.</p>
+    <div class="row">
+      <button class="gh" id="exp">Scarica il mio lavoro</button>
+      <button class="gh" id="azzera" style="color:var(--red);border-color:var(--red)">Ricomincia da zero</button>
+    </div>
+  </div>
+</section>
+
+<div class="ovl hide" id="picker"><div class="pbox">
+  <div class="ph"><input type="search" id="pk-q" placeholder="Cerca per nome, codice o raggruppamento…" autocomplete="off">
+    <button class="gh" id="pk-x">Chiudi</button></div>
+  <div class="pl0" id="pk-list"></div></div></div>
+<div id="stampa-area"></div>
+<footer class="noprint">A cura del <b>prof. Vittorio Riccardi</b> &middot; gestionale didattico di contabilit&agrave; generale &middot; aggiornato il 21/09/2026.</footer>
+</div>
+
+<script>
+const CONTI=[{"c":"00.01","d":"Azionisti c/sottoscrizione","t":"Finanziario","de":"SP","e":"D","g":"CREDITI VERSO SOCI","sez":"Stato patrimoniale — Attivo","cls":"Finanziario assimilato","cls3":"Finanziario assimilato","rt":0,"lt":"A","rn":"","nu":"","lt2":"","ord":[1,0,0,0]},{"c":"00.02","d":"Azionisti c/versamenti richiamati","t":"Finanziario","de":"SP","e":"D","g":"CREDITI VERSO SOCI","sez":"Stato patrimoniale — Attivo","cls":"Finanziario assimilato","cls3":"Finanziario assimilato","rt":0,"lt":"A","rn":"","nu":"","lt2":"","ord":[1,0,0,0]},{"c":"00.03","d":"Azionisti c/reintegro","t":"Finanziario","de":"SP","e":"D","g":"CREDITI VERSO SOCI","sez":"Stato patrimoniale — Attivo","cls":"Finanziario assimilato","cls3":"Finanziario assimilato","rt":0,"lt":"A","rn":"","nu":"","lt2":"","ord":[1,0,0,0]},{"c":"01.01","d":"Costi di impianto","t":"Economico","de":"SP","e":"D","g":"IMMOBILIZZAZIONI IMMATERIALI","sez":"Stato patrimoniale — Attivo","cls":"Economico di reddito","cls3":"Economico di reddito — costo pluriennale","rt":0,"lt":"B","rn":"I","nu":"1","lt2":"","ord":[2,1,1,0]},{"c":"01.02","d":"Costi di ampliamento","t":"Economico","de":"SP","e":"D","g":"IMMOBILIZZAZIONI IMMATERIALI","sez":"Stato patrimoniale — Attivo","cls":"Economico di reddito","cls3":"Economico di reddito — costo pluriennale","rt":0,"lt":"B","rn":"I","nu":"1","lt2":"","ord":[2,1,1,0]},{"c":"01.03","d":"Costi di sviluppo","t":"Economico","de":"SP","e":"D","g":"IMMOBILIZZAZIONI IMMATERIALI","sez":"Stato patrimoniale — Attivo","cls":"Economico di reddito","cls3":"Economico di reddito — costo pluriennale","rt":0,"lt":"B","rn":"I","nu":"2","lt2":"","ord":[2,1,2,0]},{"c":"01.04","d":"Brevetti","t":"Economico","de":"SP","e":"D","g":"IMMOBILIZZAZIONI IMMATERIALI","sez":"Stato patrimoniale — Attivo","cls":"Economico di reddito","cls3":"Economico di reddito — costo pluriennale","rt":0,"lt":"B","rn":"I","nu":"3","lt2":"","ord":[2,1,3,0]},{"c":"01.05","d":"Software","t":"Economico","de":"SP","e":"D","g":"IMMOBILIZZAZIONI IMMATERIALI","sez":"Stato patrimoniale — Attivo","cls":"Economico di reddito","cls3":"Economico di reddito — costo pluriennale","rt":0,"lt":"B","rn":"I","nu":"3","lt2":"","ord":[2,1,3,0]},{"c":"01.06","d":"Avviamento","t":"Economico","de":"SP","e":"D","g":"IMMOBILIZZAZIONI IMMATERIALI","sez":"Stato patrimoniale — Attivo","cls":"Economico di reddito","cls3":"Economico di reddito — costo pluriennale","rt":0,"lt":"B","rn":"I","nu":"5","lt2":"","ord":[2,1,5,0]},{"c":"01.11","d":"Fondo ammortamento costi di impianto","t":"Economico","de":"SP","e":"A","g":"IMMOBILIZZAZIONI IMMATERIALI","sez":"Stato patrimoniale — Attivo","cls":"Economico di reddito","cls3":"Economico di reddito — costo pluriennale","rt":1,"lt":"B","rn":"I","nu":"1","lt2":"","ord":[2,1,1,0]},{"c":"01.12","d":"Fondo ammortamento costi di ampliamento","t":"Economico","de":"SP","e":"A","g":"IMMOBILIZZAZIONI IMMATERIALI","sez":"Stato patrimoniale — Attivo","cls":"Economico di reddito","cls3":"Economico di reddito — costo pluriennale","rt":1,"lt":"B","rn":"I","nu":"1","lt2":"","ord":[2,1,1,0]},{"c":"01.13","d":"Fondo ammortamento costi di sviluppo","t":"Economico","de":"SP","e":"A","g":"IMMOBILIZZAZIONI IMMATERIALI","sez":"Stato patrimoniale — Attivo","cls":"Economico di reddito","cls3":"Economico di reddito — costo pluriennale","rt":1,"lt":"B","rn":"I","nu":"2","lt2":"","ord":[2,1,2,0]},{"c":"01.14","d":"Fondo ammortamento brevetti","t":"Economico","de":"SP","e":"A","g":"IMMOBILIZZAZIONI IMMATERIALI","sez":"Stato patrimoniale — Attivo","cls":"Economico di reddito","cls3":"Economico di reddito — costo pluriennale","rt":1,"lt":"B","rn":"I","nu":"3","lt2":"","ord":[2,1,3,0]},{"c":"01.15","d":"Fondo ammortamento software","t":"Economico","de":"SP","e":"A","g":"IMMOBILIZZAZIONI IMMATERIALI","sez":"Stato patrimoniale — Attivo","cls":"Economico di reddito","cls3":"Economico di reddito — costo pluriennale","rt":1,"lt":"B","rn":"I","nu":"3","lt2":"","ord":[2,1,3,0]},{"c":"01.16","d":"Fondo ammortamento avviamento","t":"Economico","de":"SP","e":"A","g":"IMMOBILIZZAZIONI IMMATERIALI","sez":"Stato patrimoniale — Attivo","cls":"Economico di reddito","cls3":"Economico di reddito — costo pluriennale","rt":1,"lt":"B","rn":"I","nu":"5","lt2":"","ord":[2,1,5,0]},{"c":"01.30","d":"Immobilizzazioni immateriali in corso","t":"Economico","de":"SP","e":"D","g":"IMMOBILIZZAZIONI IMMATERIALI","sez":"Stato patrimoniale — Attivo","cls":"Economico di reddito","cls3":"Economico di reddito — costo pluriennale","rt":0,"lt":"B","rn":"I","nu":"6","lt2":"","ord":[2,1,6,0]},{"c":"01.31","d":"Fornitori immobilizzazioni immateriali c/acconti","t":"Finanziario","de":"SP","e":"D","g":"IMMOBILIZZAZIONI IMMATERIALI","sez":"Stato patrimoniale — Attivo","cls":"Finanziario assimilato","cls3":"Finanziario assimilato","rt":0,"lt":"B","rn":"I","nu":"6","lt2":"","ord":[2,1,6,0]},{"c":"02.01","d":"Terreni e fabbricati","t":"Economico","de":"SP","e":"D","g":"IMMOBILIZZAZIONI MATERIALI","sez":"Stato patrimoniale — Attivo","cls":"Economico di reddito","cls3":"Economico di reddito — costo pluriennale","rt":0,"lt":"B","rn":"II","nu":"1","lt2":"","ord":[2,2,1,0]},{"c":"02.02","d":"Impianti e macchinari","t":"Economico","de":"SP","e":"D","g":"IMMOBILIZZAZIONI MATERIALI","sez":"Stato patrimoniale — Attivo","cls":"Economico di reddito","cls3":"Economico di reddito — costo pluriennale","rt":0,"lt":"B","rn":"II","nu":"2","lt2":"","ord":[2,2,2,0]},{"c":"02.03","d":"Attrezzature industriali","t":"Economico","de":"SP","e":"D","g":"IMMOBILIZZAZIONI MATERIALI","sez":"Stato patrimoniale — Attivo","cls":"Economico di reddito","cls3":"Economico di reddito — costo pluriennale","rt":0,"lt":"B","rn":"II","nu":"3","lt2":"","ord":[2,2,3,0]},{"c":"02.04","d":"Attrezzature commerciali","t":"Economico","de":"SP","e":"D","g":"IMMOBILIZZAZIONI MATERIALI","sez":"Stato patrimoniale — Attivo","cls":"Economico di reddito","cls3":"Economico di reddito — costo pluriennale","rt":0,"lt":"B","rn":"II","nu":"3","lt2":"","ord":[2,2,3,0]},{"c":"02.05","d":"Macchine d’ufficio","t":"Economico","de":"SP","e":"D","g":"IMMOBILIZZAZIONI MATERIALI","sez":"Stato patrimoniale — Attivo","cls":"Economico di reddito","cls3":"Economico di reddito — costo pluriennale","rt":0,"lt":"B","rn":"II","nu":"4","lt2":"","ord":[2,2,4,0]},{"c":"02.06","d":"Arredamento","t":"Economico","de":"SP","e":"D","g":"IMMOBILIZZAZIONI MATERIALI","sez":"Stato patrimoniale — Attivo","cls":"Economico di reddito","cls3":"Economico di reddito — costo pluriennale","rt":0,"lt":"B","rn":"II","nu":"4","lt2":"","ord":[2,2,4,0]},{"c":"02.07","d":"Automezzi","t":"Economico","de":"SP","e":"D","g":"IMMOBILIZZAZIONI MATERIALI","sez":"Stato patrimoniale — Attivo","cls":"Economico di reddito","cls3":"Economico di reddito — costo pluriennale","rt":0,"lt":"B","rn":"II","nu":"4","lt2":"","ord":[2,2,4,0]},{"c":"02.08","d":"Imballaggi durevoli","t":"Economico","de":"SP","e":"D","g":"IMMOBILIZZAZIONI MATERIALI","sez":"Stato patrimoniale — Attivo","cls":"Economico di reddito","cls3":"Economico di reddito — costo pluriennale","rt":0,"lt":"B","rn":"II","nu":"4","lt2":"","ord":[2,2,4,0]},{"c":"02.11","d":"Fondo ammortamento fabbricati","t":"Economico","de":"SP","e":"A","g":"IMMOBILIZZAZIONI MATERIALI","sez":"Stato patrimoniale — Attivo","cls":"Economico di reddito","cls3":"Economico di reddito — costo pluriennale","rt":1,"lt":"B","rn":"II","nu":"1","lt2":"","ord":[2,2,1,0]},{"c":"02.12","d":"Fondo ammortamento impianti e macchinari","t":"Economico","de":"SP","e":"A","g":"IMMOBILIZZAZIONI MATERIALI","sez":"Stato patrimoniale — Attivo","cls":"Economico di reddito","cls3":"Economico di reddito — costo pluriennale","rt":1,"lt":"B","rn":"II","nu":"2","lt2":"","ord":[2,2,2,0]},{"c":"02.13","d":"Fondo ammortamento attrezzature industriali","t":"Economico","de":"SP","e":"A","g":"IMMOBILIZZAZIONI MATERIALI","sez":"Stato patrimoniale — Attivo","cls":"Economico di reddito","cls3":"Economico di reddito — costo pluriennale","rt":1,"lt":"B","rn":"II","nu":"3","lt2":"","ord":[2,2,3,0]},{"c":"02.14","d":"Fondo ammortamento attrezzature commerciali","t":"Economico","de":"SP","e":"A","g":"IMMOBILIZZAZIONI MATERIALI","sez":"Stato patrimoniale — Attivo","cls":"Economico di reddito","cls3":"Economico di reddito — costo pluriennale","rt":1,"lt":"B","rn":"II","nu":"3","lt2":"","ord":[2,2,3,0]},{"c":"02.15","d":"Fondo ammortamento macchine d’ufficio","t":"Economico","de":"SP","e":"A","g":"IMMOBILIZZAZIONI MATERIALI","sez":"Stato patrimoniale — Attivo","cls":"Economico di reddito","cls3":"Economico di reddito — costo pluriennale","rt":1,"lt":"B","rn":"II","nu":"4","lt2":"","ord":[2,2,4,0]},{"c":"02.16","d":"Fondo ammortamento arredamento","t":"Economico","de":"SP","e":"A","g":"IMMOBILIZZAZIONI MATERIALI","sez":"Stato patrimoniale — Attivo","cls":"Economico di reddito","cls3":"Economico di reddito — costo pluriennale","rt":1,"lt":"B","rn":"II","nu":"4","lt2":"","ord":[2,2,4,0]},{"c":"02.17","d":"Fondo ammortamento automezzi","t":"Economico","de":"SP","e":"A","g":"IMMOBILIZZAZIONI MATERIALI","sez":"Stato patrimoniale — Attivo","cls":"Economico di reddito","cls3":"Economico di reddito — costo pluriennale","rt":1,"lt":"B","rn":"II","nu":"4","lt2":"","ord":[2,2,4,0]},{"c":"02.18","d":"Fondo ammortamento imballaggi durevoli","t":"Economico","de":"SP","e":"A","g":"IMMOBILIZZAZIONI MATERIALI","sez":"Stato patrimoniale — Attivo","cls":"Economico di reddito","cls3":"Economico di reddito — costo pluriennale","rt":1,"lt":"B","rn":"II","nu":"4","lt2":"","ord":[2,2,4,0]},{"c":"02.20","d":"Fondo svalutazione terreni e fabbricati","t":"Economico","de":"SP","e":"A","g":"IMMOBILIZZAZIONI MATERIALI","sez":"Stato patrimoniale — Attivo","cls":"Economico di reddito","cls3":"Economico di reddito — costo pluriennale","rt":1,"lt":"B","rn":"II","nu":"1","lt2":"","ord":[2,2,1,0]},{"c":"02.21","d":"Fondo svalutazione impianti e macchinari","t":"Economico","de":"SP","e":"A","g":"IMMOBILIZZAZIONI MATERIALI","sez":"Stato patrimoniale — Attivo","cls":"Economico di reddito","cls3":"Economico di reddito — costo pluriennale","rt":1,"lt":"B","rn":"II","nu":"2","lt2":"","ord":[2,2,2,0]},{"c":"02.30","d":"Immobilizzazioni materiali in corso","t":"Economico","de":"SP","e":"D","g":"IMMOBILIZZAZIONI MATERIALI","sez":"Stato patrimoniale — Attivo","cls":"Economico di reddito","cls3":"Economico di reddito — costo pluriennale","rt":0,"lt":"B","rn":"II","nu":"5","lt2":"","ord":[2,2,5,0]},{"c":"02.31","d":"Fornitori immobilizzazioni materiali c/acconti","t":"Finanziario","de":"SP","e":"D","g":"IMMOBILIZZAZIONI MATERIALI","sez":"Stato patrimoniale — Attivo","cls":"Finanziario assimilato","cls3":"Finanziario assimilato","rt":0,"lt":"B","rn":"II","nu":"5","lt2":"","ord":[2,2,5,0]},{"c":"03.01","d":"Partecipazioni in controllate","t":"Economico","de":"SP","e":"D","g":"IMMOBILIZZAZIONI FINANZIARIE","sez":"Stato patrimoniale — Attivo","cls":"Economico di reddito","cls3":"Economico di reddito — costo sospeso","rt":0,"lt":"B","rn":"III","nu":"1","lt2":"a","ord":[2,3,1,10]},{"c":"03.02","d":"Partecipazioni in collegate","t":"Economico","de":"SP","e":"D","g":"IMMOBILIZZAZIONI FINANZIARIE","sez":"Stato patrimoniale — Attivo","cls":"Economico di reddito","cls3":"Economico di reddito — costo sospeso","rt":0,"lt":"B","rn":"III","nu":"1","lt2":"b","ord":[2,3,1,20]},{"c":"03.03","d":"Partecipazioni in controllante","t":"Economico","de":"SP","e":"D","g":"IMMOBILIZZAZIONI FINANZIARIE","sez":"Non iscritto in bilancio","cls":"Economico di reddito","cls3":"Economico di reddito — costo sospeso","rt":0,"lt":"","rn":"","nu":"","lt2":"","ord":[99,0,0,0]},{"c":"03.04","d":"Partecipazioni diverse","t":"Economico","de":"SP","e":"D","g":"IMMOBILIZZAZIONI FINANZIARIE","sez":"Stato patrimoniale — Attivo","cls":"Economico di reddito","cls3":"Economico di reddito — costo sospeso","rt":0,"lt":"B","rn":"III","nu":"1","lt2":"d-bis","ord":[2,3,1,41]},{"c":"03.10","d":"Prestiti a controllate","t":"Finanziario","de":"SP","e":"D","g":"IMMOBILIZZAZIONI FINANZIARIE","sez":"Stato patrimoniale — Attivo","cls":"Finanziario assimilato","cls3":"Finanziario assimilato","rt":0,"lt":"B","rn":"III","nu":"2","lt2":"a","ord":[2,3,2,10]},{"c":"03.11","d":"Prestiti a collegate","t":"Finanziario","de":"SP","e":"D","g":"IMMOBILIZZAZIONI FINANZIARIE","sez":"Stato patrimoniale — Attivo","cls":"Finanziario assimilato","cls3":"Finanziario assimilato","rt":0,"lt":"B","rn":"III","nu":"2","lt2":"b","ord":[2,3,2,20]},{"c":"03.12","d":"Prestiti a controllante","t":"Finanziario","de":"SP","e":"D","g":"IMMOBILIZZAZIONI FINANZIARIE","sez":"Stato patrimoniale — Attivo","cls":"Finanziario assimilato","cls3":"Finanziario assimilato","rt":0,"lt":"B","rn":"III","nu":"2","lt2":"c","ord":[2,3,2,30]},{"c":"03.13","d":"Mutui attivi","t":"Finanziario","de":"SP","e":"D","g":"IMMOBILIZZAZIONI FINANZIARIE","sez":"Stato patrimoniale — Attivo","cls":"Finanziario assimilato","cls3":"Finanziario assimilato","rt":0,"lt":"B","rn":"III","nu":"2","lt2":"d-bis","ord":[2,3,2,41]},{"c":"03.30","d":"Titoli immobilizzati","t":"Economico","de":"SP","e":"D","g":"IMMOBILIZZAZIONI FINANZIARIE","sez":"Stato patrimoniale — Attivo","cls":"Economico di reddito","cls3":"Economico di reddito — costo sospeso","rt":0,"lt":"B","rn":"III","nu":"3","lt2":"","ord":[2,3,3,0]},{"c":"04.01","d":"Materie prime","t":"Economico","de":"SP","e":"D","g":"RIMANENZE","sez":"Stato patrimoniale — Attivo","cls":"Economico di reddito","cls3":"Economico di reddito — costo sospeso","rt":0,"lt":"C","rn":"I","nu":"1","lt2":"","ord":[3,1,1,0]},{"c":"04.02","d":"Materie sussidiarie","t":"Economico","de":"SP","e":"D","g":"RIMANENZE","sez":"Stato patrimoniale — Attivo","cls":"Economico di reddito","cls3":"Economico di reddito — costo sospeso","rt":0,"lt":"C","rn":"I","nu":"1","lt2":"","ord":[3,1,1,0]},{"c":"04.03","d":"Materie di consumo","t":"Economico","de":"SP","e":"D","g":"RIMANENZE","sez":"Stato patrimoniale — Attivo","cls":"Economico di reddito","cls3":"Economico di reddito — costo sospeso","rt":0,"lt":"C","rn":"I","nu":"1","lt2":"","ord":[3,1,1,0]},{"c":"04.04","d":"Prodotti in lavorazione","t":"Economico","de":"SP","e":"D","g":"RIMANENZE","sez":"Stato patrimoniale — Attivo","cls":"Economico di reddito","cls3":"Economico di reddito — costo sospeso","rt":0,"lt":"C","rn":"I","nu":"2","lt2":"","ord":[3,1,2,0]},{"c":"04.05","d":"Semilavorati","t":"Economico","de":"SP","e":"D","g":"RIMANENZE","sez":"Stato patrimoniale — Attivo","cls":"Economico di reddito","cls3":"Economico di reddito — costo sospeso","rt":0,"lt":"C","rn":"I","nu":"2","lt2":"","ord":[3,1,2,0]},{"c":"04.06","d":"Prodotti finiti","t":"Economico","de":"SP","e":"D","g":"RIMANENZE","sez":"Stato patrimoniale — Attivo","cls":"Economico di reddito","cls3":"Economico di reddito — costo sospeso","rt":0,"lt":"C","rn":"I","nu":"4","lt2":"","ord":[3,1,4,0]},{"c":"04.07","d":"Merci","t":"Economico","de":"SP","e":"D","g":"RIMANENZE","sez":"Stato patrimoniale — Attivo","cls":"Economico di reddito","cls3":"Economico di reddito — costo sospeso","rt":0,"lt":"C","rn":"I","nu":"4","lt2":"","ord":[3,1,4,0]},{"c":"04.30","d":"Fornitori c/acconti","t":"Finanziario","de":"SP","e":"D","g":"RIMANENZE","sez":"Stato patrimoniale — Attivo","cls":"Finanziario assimilato","cls3":"Finanziario assimilato","rt":0,"lt":"C","rn":"I","nu":"5","lt2":"","ord":[3,1,5,0]},{"c":"05.01","d":"Crediti v/clienti","t":"Finanziario","de":"SP","e":"D","g":"CREDITI COMMERCIALI","sez":"Stato patrimoniale — Attivo","cls":"Finanziario assimilato","cls3":"Finanziario assimilato","rt":0,"lt":"C","rn":"II","nu":"1","lt2":"","ord":[3,2,1,0]},{"c":"05.02","d":"Fatture da emettere","t":"Finanziario","de":"SP","e":"D","g":"CREDITI COMMERCIALI","sez":"Stato patrimoniale — Attivo","cls":"Finanziario assimilato","cls3":"Finanziario assimilato","rt":0,"lt":"C","rn":"II","nu":"1","lt2":"","ord":[3,2,1,0]},{"c":"05.03","d":"Crediti commerciali diversi","t":"Finanziario","de":"SP","e":"D","g":"CREDITI COMMERCIALI","sez":"Stato patrimoniale — Attivo","cls":"Finanziario assimilato","cls3":"Finanziario assimilato","rt":0,"lt":"C","rn":"II","nu":"1","lt2":"","ord":[3,2,1,0]},{"c":"05.04","d":"Crediti fattorizzati","t":"Finanziario","de":"SP","e":"D","g":"CREDITI COMMERCIALI","sez":"Stato patrimoniale — Attivo","cls":"Finanziario assimilato","cls3":"Finanziario assimilato","rt":0,"lt":"C","rn":"II","nu":"1","lt2":"","ord":[3,2,1,0]},{"c":"05.05","d":"Clienti c/costi anticipati","t":"Finanziario","de":"SP","e":"D","g":"CREDITI COMMERCIALI","sez":"Stato patrimoniale — Attivo","cls":"Finanziario assimilato","cls3":"Finanziario assimilato","rt":0,"lt":"C","rn":"II","nu":"1","lt2":"","ord":[3,2,1,0]},{"c":"05.06","d":"Cambiali attive","t":"Finanziario","de":"SP","e":"D","g":"CREDITI COMMERCIALI","sez":"Stato patrimoniale — Attivo","cls":"Finanziario assimilato","cls3":"Finanziario assimilato","rt":0,"lt":"C","rn":"II","nu":"1","lt2":"","ord":[3,2,1,0]},{"c":"05.07","d":"Cambiali allo sconto","t":"Finanziario","de":"SP","e":"D","g":"CREDITI COMMERCIALI","sez":"Stato patrimoniale — Attivo","cls":"Finanziario assimilato","cls3":"Finanziario assimilato","rt":0,"lt":"C","rn":"II","nu":"1","lt2":"","ord":[3,2,1,0]},{"c":"05.08","d":"Cambiali all’incasso","t":"Finanziario","de":"SP","e":"D","g":"CREDITI COMMERCIALI","sez":"Stato patrimoniale — Attivo","cls":"Finanziario assimilato","cls3":"Finanziario assimilato","rt":0,"lt":"C","rn":"II","nu":"1","lt2":"","ord":[3,2,1,0]},{"c":"05.09","d":"Crediti da liquidare","t":"Finanziario","de":"SP","e":"D","g":"CREDITI COMMERCIALI","sez":"Stato patrimoniale — Attivo","cls":"Finanziario assimilato","cls3":"Finanziario assimilato","rt":0,"lt":"C","rn":"II","nu":"1","lt2":"","ord":[3,2,1,0]},{"c":"05.10","d":"Crediti insoluti","t":"Finanziario","de":"SP","e":"D","g":"CREDITI COMMERCIALI","sez":"Stato patrimoniale — Attivo","cls":"Finanziario assimilato","cls3":"Finanziario assimilato","rt":0,"lt":"C","rn":"II","nu":"1","lt2":"","ord":[3,2,1,0]},{"c":"05.11","d":"Cambiali insolute","t":"Finanziario","de":"SP","e":"D","g":"CREDITI COMMERCIALI","sez":"Stato patrimoniale — Attivo","cls":"Finanziario assimilato","cls3":"Finanziario assimilato","rt":0,"lt":"C","rn":"II","nu":"1","lt2":"","ord":[3,2,1,0]},{"c":"05.15","d":"Crediti per acconti da clienti","t":"Finanziario","de":"SP","e":"D","g":"CREDITI COMMERCIALI","sez":"Stato patrimoniale — Attivo","cls":"Finanziario assimilato","cls3":"Finanziario assimilato","rt":0,"lt":"C","rn":"II","nu":"1","lt2":"","ord":[3,2,1,0]},{"c":"05.20","d":"Fondo svalutazione crediti","t":"Finanziario","de":"SP","e":"A","g":"CREDITI COMMERCIALI","sez":"Stato patrimoniale — Attivo","cls":"Finanziario presunto","cls3":"Finanziario presunto","rt":0,"lt":"C","rn":"II","nu":"1","lt2":"","ord":[3,2,1,0]},{"c":"06.01","d":"IVA ns/credito","t":"Finanziario","de":"SP","e":"D","g":"CREDITI DIVERSI","sez":"Non iscritto in bilancio","cls":"Finanziario assimilato","cls3":"Finanziario assimilato","rt":0,"lt":"","rn":"","nu":"","lt2":"","ord":[99,0,0,0]},{"c":"06.02","d":"IVA c/acconto","t":"Finanziario","de":"SP","e":"D","g":"CREDITI DIVERSI","sez":"Non iscritto in bilancio","cls":"Finanziario assimilato","cls3":"Finanziario assimilato","rt":0,"lt":"","rn":"","nu":"","lt2":"","ord":[99,0,0,0]},{"c":"06.03","d":"Crediti per IVA","t":"Finanziario","de":"SP","e":"D","g":"CREDITI DIVERSI","sez":"Stato patrimoniale — Attivo","cls":"Finanziario assimilato","cls3":"Finanziario assimilato","rt":0,"lt":"C","rn":"II","nu":"5-bis","lt2":"","ord":[3,2,5,1]},{"c":"06.04","d":"Imposte c/acconto","t":"Finanziario","de":"SP","e":"D","g":"CREDITI DIVERSI","sez":"Non iscritto in bilancio","cls":"Finanziario assimilato","cls3":"Finanziario assimilato","rt":0,"lt":"","rn":"","nu":"","lt2":"","ord":[99,0,0,0]},{"c":"06.05","d":"Crediti per ritenute subite","t":"Finanziario","de":"SP","e":"D","g":"CREDITI DIVERSI","sez":"Non iscritto in bilancio","cls":"Finanziario assimilato","cls3":"Finanziario assimilato","rt":0,"lt":"","rn":"","nu":"","lt2":"","ord":[99,0,0,0]},{"c":"06.06","d":"Crediti per imposte","t":"Finanziario","de":"SP","e":"D","g":"CREDITI DIVERSI","sez":"Stato patrimoniale — Attivo","cls":"Finanziario assimilato","cls3":"Finanziario assimilato","rt":0,"lt":"C","rn":"II","nu":"5-bis","lt2":"","ord":[3,2,5,1]},{"c":"06.07","d":"Crediti d’imposta","t":"Finanziario","de":"SP","e":"D","g":"CREDITI DIVERSI","sez":"Stato patrimoniale — Attivo","cls":"Finanziario assimilato","cls3":"Finanziario assimilato","rt":0,"lt":"C","rn":"II","nu":"5-bis","lt2":"","ord":[3,2,5,1]},{"c":"06.09","d":"Crediti v/Istituti previdenziali","t":"Finanziario","de":"SP","e":"D","g":"CREDITI DIVERSI","sez":"Stato patrimoniale — Attivo","cls":"Finanziario assimilato","cls3":"Finanziario assimilato","rt":0,"lt":"C","rn":"II","nu":"5-quater","lt2":"","ord":[3,2,5,3]},{"c":"06.10","d":"Crediti per cauzioni","t":"Finanziario","de":"SP","e":"D","g":"CREDITI DIVERSI","sez":"Stato patrimoniale — Attivo","cls":"Finanziario assimilato","cls3":"Finanziario assimilato","rt":0,"lt":"C","rn":"II","nu":"5-quater","lt2":"","ord":[3,2,5,3]},{"c":"06.11","d":"Crediti diversi","t":"Finanziario","de":"SP","e":"D","g":"CREDITI DIVERSI","sez":"Stato patrimoniale — Attivo","cls":"Finanziario assimilato","cls3":"Finanziario assimilato","rt":0,"lt":"C","rn":"II","nu":"5-quater","lt2":"","ord":[3,2,5,3]},{"c":"06.15","d":"Crediti v/controllate","t":"Finanziario","de":"SP","e":"D","g":"CREDITI DIVERSI","sez":"Stato patrimoniale — Attivo","cls":"Finanziario assimilato","cls3":"Finanziario assimilato","rt":0,"lt":"C","rn":"II","nu":"2","lt2":"","ord":[3,2,2,0]},{"c":"06.16","d":"Crediti v/collegate","t":"Finanziario","de":"SP","e":"D","g":"CREDITI DIVERSI","sez":"Stato patrimoniale — Attivo","cls":"Finanziario assimilato","cls3":"Finanziario assimilato","rt":0,"lt":"C","rn":"II","nu":"3","lt2":"","ord":[3,2,3,0]},{"c":"06.17","d":"Crediti v/controllante","t":"Finanziario","de":"SP","e":"D","g":"CREDITI DIVERSI","sez":"Stato patrimoniale — Attivo","cls":"Finanziario assimilato","cls3":"Finanziario assimilato","rt":0,"lt":"C","rn":"II","nu":"4","lt2":"","ord":[3,2,4,0]},{"c":"06.20","d":"Personale c/acconti","t":"Finanziario","de":"SP","e":"D","g":"CREDITI DIVERSI","sez":"Stato patrimoniale — Attivo","cls":"Finanziario assimilato","cls3":"Finanziario assimilato","rt":0,"lt":"C","rn":"II","nu":"5-quater","lt2":"","ord":[3,2,5,3]},{"c":"06.30","d":"Obbligazionisti c/sottoscrizione","t":"Finanziario","de":"SP","e":"D","g":"CREDITI DIVERSI","sez":"Stato patrimoniale — Attivo","cls":"Finanziario assimilato","cls3":"Finanziario assimilato","rt":0,"lt":"C","rn":"II","nu":"5-quater","lt2":"","ord":[3,2,5,3]},{"c":"06.40","d":"Ente concedente c/contributi","t":"Finanziario","de":"SP","e":"D","g":"CREDITI DIVERSI","sez":"Stato patrimoniale — Attivo","cls":"Finanziario assimilato","cls3":"Finanziario assimilato","rt":0,"lt":"C","rn":"II","nu":"5-quater","lt2":"","ord":[3,2,5,3]},{"c":"07.01","d":"Partecipazioni","t":"Economico","de":"SP","e":"D","g":"ATTIVITÀ FINANZIARIE","sez":"Stato patrimoniale — Attivo","cls":"Economico di reddito","cls3":"Economico di reddito — costo sospeso","rt":0,"lt":"C","rn":"III","nu":"4","lt2":"","ord":[3,3,4,0]},{"c":"07.02","d":"Titoli","t":"Economico","de":"SP","e":"D","g":"ATTIVITÀ FINANZIARIE","sez":"Stato patrimoniale — Attivo","cls":"Economico di reddito","cls3":"Economico di reddito — costo sospeso","rt":0,"lt":"C","rn":"III","nu":"6","lt2":"","ord":[3,3,6,0]},{"c":"08.01","d":"Banche c/c attivi","t":"Finanziario","de":"SP","e":"D","g":"DISPONIBILITÀ LIQUIDE","sez":"Stato patrimoniale — Attivo","cls":"Finanziario certo","cls3":"Finanziario certo","rt":0,"lt":"C","rn":"IV","nu":"1","lt2":"","ord":[3,4,1,0]},{"c":"08.02","d":"Banca X c/vincolato","t":"Finanziario","de":"SP","e":"D","g":"DISPONIBILITÀ LIQUIDE","sez":"Stato patrimoniale — Attivo","cls":"Finanziario certo","cls3":"Finanziario certo","rt":0,"lt":"C","rn":"IV","nu":"1","lt2":"","ord":[3,4,1,0]},{"c":"08.03","d":"C/c postali","t":"Finanziario","de":"SP","e":"D","g":"DISPONIBILITÀ LIQUIDE","sez":"Stato patrimoniale — Attivo","cls":"Finanziario certo","cls3":"Finanziario certo","rt":0,"lt":"C","rn":"IV","nu":"1","lt2":"","ord":[3,4,1,0]},{"c":"08.10","d":"Assegni","t":"Finanziario","de":"SP","e":"D","g":"DISPONIBILITÀ LIQUIDE","sez":"Stato patrimoniale — Attivo","cls":"Finanziario certo","cls3":"Finanziario certo","rt":0,"lt":"C","rn":"IV","nu":"2","lt2":"","ord":[3,4,2,0]},{"c":"08.20","d":"Denaro in cassa","t":"Finanziario","de":"SP","e":"D","g":"DISPONIBILITÀ LIQUIDE","sez":"Stato patrimoniale — Attivo","cls":"Finanziario certo","cls3":"Finanziario certo","rt":0,"lt":"C","rn":"IV","nu":"3","lt2":"","ord":[3,4,3,0]},{"c":"08.21","d":"Valori bollati","t":"Finanziario","de":"SP","e":"D","g":"DISPONIBILITÀ LIQUIDE","sez":"Stato patrimoniale — Attivo","cls":"Finanziario certo","cls3":"Finanziario certo","rt":0,"lt":"C","rn":"IV","nu":"3","lt2":"","ord":[3,4,3,0]},{"c":"09.01","d":"Ratei attivi","t":"Finanziario","de":"SP","e":"D","g":"RATEI E RISCONTI ATTIVI","sez":"Stato patrimoniale — Attivo","cls":"Finanziario presunto","cls3":"Finanziario presunto","rt":0,"lt":"D","rn":"","nu":"","lt2":"","ord":[4,0,0,0]},{"c":"09.02","d":"Risconti attivi","t":"Economico","de":"SP","e":"D","g":"RATEI E RISCONTI ATTIVI","sez":"Stato patrimoniale — Attivo","cls":"Economico di reddito","cls3":"Economico di reddito — costo sospeso","rt":0,"lt":"D","rn":"","nu":"","lt2":"","ord":[4,0,0,0]},{"c":"10.01","d":"Capitale sociale","t":"Economico","de":"SP","e":"A","g":"PATRIMONIO NETTO","sez":"Stato patrimoniale — Passivo","cls":"Economico di patrimonio netto","cls3":"Economico di patrimonio netto","rt":0,"lt":"A","rn":"I","nu":"","lt2":"","ord":[1,1,0,0]},{"c":"10.02","d":"Riserva soprapprezzo azioni","t":"Economico","de":"SP","e":"A","g":"PATRIMONIO NETTO","sez":"Stato patrimoniale — Passivo","cls":"Economico di patrimonio netto","cls3":"Economico di patrimonio netto","rt":0,"lt":"A","rn":"II","nu":"","lt2":"","ord":[1,2,0,0]},{"c":"10.03","d":"Riserva di rivalutazione","t":"Economico","de":"SP","e":"A","g":"PATRIMONIO NETTO","sez":"Stato patrimoniale — Passivo","cls":"Economico di patrimonio netto","cls3":"Economico di patrimonio netto","rt":0,"lt":"A","rn":"III","nu":"","lt2":"","ord":[1,3,0,0]},{"c":"10.04","d":"Riserva legale","t":"Economico","de":"SP","e":"A","g":"PATRIMONIO NETTO","sez":"Stato patrimoniale — Passivo","cls":"Economico di patrimonio netto","cls3":"Economico di patrimonio netto","rt":0,"lt":"A","rn":"IV","nu":"","lt2":"","ord":[1,4,0,0]},{"c":"10.05","d":"Riserva statutaria","t":"Economico","de":"SP","e":"A","g":"PATRIMONIO NETTO","sez":"Stato patrimoniale — Passivo","cls":"Economico di patrimonio netto","cls3":"Economico di patrimonio netto","rt":0,"lt":"A","rn":"V","nu":"","lt2":"","ord":[1,5,0,0]},{"c":"10.06","d":"Riserva straordinaria","t":"Economico","de":"SP","e":"A","g":"PATRIMONIO NETTO","sez":"Stato patrimoniale — Passivo","cls":"Economico di patrimonio netto","cls3":"Economico di patrimonio netto","rt":0,"lt":"A","rn":"VI","nu":"","lt2":"","ord":[1,6,0,0]},{"c":"10.07","d":"Riserva conguaglio utili","t":"Economico","de":"SP","e":"A","g":"PATRIMONIO NETTO","sez":"Stato patrimoniale — Passivo","cls":"Economico di patrimonio netto","cls3":"Economico di patrimonio netto","rt":0,"lt":"A","rn":"VI","nu":"","lt2":"","ord":[1,6,0,0]},{"c":"10.20","d":"Versamenti azionisti c/capitale","t":"Economico","de":"SP","e":"A","g":"PATRIMONIO NETTO","sez":"Stato patrimoniale — Passivo","cls":"Economico di patrimonio netto","cls3":"Economico di patrimonio netto","rt":0,"lt":"A","rn":"I","nu":"","lt2":"","ord":[1,1,0,0]},{"c":"10.21","d":"Versamenti c/aumento capitale","t":"Economico","de":"SP","e":"A","g":"PATRIMONIO NETTO","sez":"Stato patrimoniale — Passivo","cls":"Economico di patrimonio netto","cls3":"Economico di patrimonio netto","rt":0,"lt":"A","rn":"VI","nu":"","lt2":"","ord":[1,6,0,0]},{"c":"10.30","d":"Utili a nuovo","t":"Economico","de":"SP","e":"A","g":"PATRIMONIO NETTO","sez":"Stato patrimoniale — Passivo","cls":"Economico di patrimonio netto","cls3":"Economico di patrimonio netto","rt":0,"lt":"A","rn":"VIII","nu":"","lt2":"","ord":[1,8,0,0]},{"c":"10.31","d":"Perdite a nuovo","t":"Economico","de":"SP","e":"D","g":"PATRIMONIO NETTO","sez":"Stato patrimoniale — Passivo","cls":"Economico di patrimonio netto","cls3":"Economico di patrimonio netto","rt":0,"lt":"A","rn":"VIII","nu":"","lt2":"","ord":[1,8,0,0]},{"c":"10.40","d":"Utile d’esercizio","t":"Economico","de":"SP","e":"A","g":"PATRIMONIO NETTO","sez":"Stato patrimoniale — Passivo","cls":"Economico di patrimonio netto","cls3":"Economico di patrimonio netto","rt":0,"lt":"A","rn":"IX","nu":"","lt2":"","ord":[1,9,0,0]},{"c":"10.41","d":"Perdita d’esercizio","t":"Economico","de":"SP","e":"D","g":"PATRIMONIO NETTO","sez":"Stato patrimoniale — Passivo","cls":"Economico di patrimonio netto","cls3":"Economico di patrimonio netto","rt":0,"lt":"A","rn":"IX","nu":"","lt2":"","ord":[1,9,0,0]},{"c":"10.42","d":"Riserva negativa per azioni proprie","t":"Economico","de":"SP","e":"D","g":"PATRIMONIO NETTO","sez":"Stato patrimoniale — Passivo","cls":"Economico di patrimonio netto","cls3":"Economico di patrimonio netto","rt":0,"lt":"A","rn":"X","nu":"","lt2":"","ord":[1,10,0,0]},{"c":"11.01","d":"Fondo per imposte","t":"Finanziario","de":"SP","e":"A","g":"FONDI PER RISCHI E ONERI","sez":"Stato patrimoniale — Passivo","cls":"Finanziario presunto","cls3":"Finanziario presunto","rt":0,"lt":"B","rn":"","nu":"2","lt2":"","ord":[2,0,2,0]},{"c":"11.03","d":"Fondo responsabilità civile","t":"Finanziario","de":"SP","e":"A","g":"FONDI PER RISCHI E ONERI","sez":"Stato patrimoniale — Passivo","cls":"Finanziario presunto","cls3":"Finanziario presunto","rt":0,"lt":"B","rn":"","nu":"4","lt2":"","ord":[2,0,4,0]},{"c":"11.10","d":"Fondo manutenzioni programmate","t":"Finanziario","de":"SP","e":"A","g":"FONDI PER RISCHI E ONERI","sez":"Stato patrimoniale — Passivo","cls":"Finanziario presunto","cls3":"Finanziario presunto","rt":0,"lt":"B","rn":"","nu":"4","lt2":"","ord":[2,0,4,0]},{"c":"11.11","d":"Fondo garanzia prodotti","t":"Finanziario","de":"SP","e":"A","g":"FONDI PER RISCHI E ONERI","sez":"Stato patrimoniale — Passivo","cls":"Finanziario presunto","cls3":"Finanziario presunto","rt":0,"lt":"B","rn":"","nu":"4","lt2":"","ord":[2,0,4,0]},{"c":"12.01","d":"Debiti per TFR","t":"Finanziario","de":"SP","e":"A","g":"TRATTAMENTO FINE RAPPORTO","sez":"Stato patrimoniale — Passivo","cls":"Finanziario assimilato","cls3":"Finanziario assimilato","rt":0,"lt":"C","rn":"","nu":"","lt2":"","ord":[3,0,0,0]},{"c":"13.01","d":"Prestiti obbligazionari","t":"Finanziario","de":"SP","e":"A","g":"DEBITI FINANZIARI","sez":"Stato patrimoniale — Passivo","cls":"Finanziario assimilato","cls3":"Finanziario assimilato","rt":0,"lt":"D","rn":"","nu":"1","lt2":"","ord":[4,0,1,0]},{"c":"13.02","d":"Prestiti obbligazionari convertibili","t":"Finanziario","de":"SP","e":"A","g":"DEBITI FINANZIARI","sez":"Stato patrimoniale — Passivo","cls":"Finanziario assimilato","cls3":"Finanziario assimilato","rt":0,"lt":"D","rn":"","nu":"2","lt2":"","ord":[4,0,2,0]},{"c":"13.03","d":"Mutui passivi","t":"Finanziario","de":"SP","e":"A","g":"DEBITI FINANZIARI","sez":"Stato patrimoniale — Passivo","cls":"Finanziario assimilato","cls3":"Finanziario assimilato","rt":0,"lt":"D","rn":"","nu":"4","lt2":"","ord":[4,0,4,0]},{"c":"13.10","d":"Banche c/Ri.Ba. sbf","t":"Finanziario","de":"SP","e":"A","g":"DEBITI FINANZIARI","sez":"Stato patrimoniale — Passivo","cls":"Finanziario assimilato","cls3":"Finanziario assimilato","rt":0,"lt":"D","rn":"","nu":"4","lt2":"","ord":[4,0,4,0]},{"c":"13.11","d":"Banche c/anticipi su fatture","t":"Finanziario","de":"SP","e":"A","g":"DEBITI FINANZIARI","sez":"Stato patrimoniale — Passivo","cls":"Finanziario assimilato","cls3":"Finanziario assimilato","rt":0,"lt":"D","rn":"","nu":"4","lt2":"","ord":[4,0,4,0]},{"c":"13.15","d":"Sovvenzioni bancarie","t":"Finanziario","de":"SP","e":"A","g":"DEBITI FINANZIARI","sez":"Stato patrimoniale — Passivo","cls":"Finanziario assimilato","cls3":"Finanziario assimilato","rt":0,"lt":"D","rn":"","nu":"4","lt2":"","ord":[4,0,4,0]},{"c":"13.20","d":"Banche c/c passivi","t":"Finanziario","de":"SP","e":"A","g":"DEBITI FINANZIARI","sez":"Stato patrimoniale — Passivo","cls":"Finanziario assimilato","cls3":"Finanziario assimilato","rt":0,"lt":"D","rn":"","nu":"4","lt2":"","ord":[4,0,4,0]},{"c":"13.21","d":"Banche c/interessi maturati","t":"Finanziario","de":"SP","e":"A","g":"DEBITI FINANZIARI","sez":"Stato patrimoniale — Passivo","cls":"Finanziario assimilato","cls3":"Finanziario assimilato","rt":0,"lt":"D","rn":"","nu":"4","lt2":"","ord":[4,0,4,0]},{"c":"13.30","d":"Prestiti da controllate","t":"Finanziario","de":"SP","e":"A","g":"DEBITI FINANZIARI","sez":"Stato patrimoniale — Passivo","cls":"Finanziario assimilato","cls3":"Finanziario assimilato","rt":0,"lt":"D","rn":"","nu":"9","lt2":"","ord":[4,0,9,0]},{"c":"13.31","d":"Prestiti da collegate","t":"Finanziario","de":"SP","e":"A","g":"DEBITI FINANZIARI","sez":"Stato patrimoniale — Passivo","cls":"Finanziario assimilato","cls3":"Finanziario assimilato","rt":0,"lt":"D","rn":"","nu":"10","lt2":"","ord":[4,0,10,0]},{"c":"13.32","d":"Prestiti da controllante","t":"Finanziario","de":"SP","e":"A","g":"DEBITI FINANZIARI","sez":"Stato patrimoniale — Passivo","cls":"Finanziario assimilato","cls3":"Finanziario assimilato","rt":0,"lt":"D","rn":"","nu":"11","lt2":"","ord":[4,0,11,0]},{"c":"13.40","d":"Debiti v/altri finanziatori","t":"Finanziario","de":"SP","e":"A","g":"DEBITI FINANZIARI","sez":"Stato patrimoniale — Passivo","cls":"Finanziario assimilato","cls3":"Finanziario assimilato","rt":0,"lt":"D","rn":"","nu":"5","lt2":"","ord":[4,0,5,0]},{"c":"14.01","d":"Debiti v/fornitori","t":"Finanziario","de":"SP","e":"A","g":"DEBITI COMMERCIALI","sez":"Stato patrimoniale — Passivo","cls":"Finanziario assimilato","cls3":"Finanziario assimilato","rt":0,"lt":"D","rn":"","nu":"7","lt2":"","ord":[4,0,7,0]},{"c":"14.02","d":"Fatture da ricevere","t":"Finanziario","de":"SP","e":"A","g":"DEBITI COMMERCIALI","sez":"Stato patrimoniale — Passivo","cls":"Finanziario assimilato","cls3":"Finanziario assimilato","rt":0,"lt":"D","rn":"","nu":"7","lt2":"","ord":[4,0,7,0]},{"c":"14.03","d":"Debiti commerciali diversi","t":"Finanziario","de":"SP","e":"A","g":"DEBITI COMMERCIALI","sez":"Stato patrimoniale — Passivo","cls":"Finanziario assimilato","cls3":"Finanziario assimilato","rt":0,"lt":"D","rn":"","nu":"7","lt2":"","ord":[4,0,7,0]},{"c":"14.06","d":"Cambiali passive","t":"Finanziario","de":"SP","e":"A","g":"DEBITI COMMERCIALI","sez":"Stato patrimoniale — Passivo","cls":"Finanziario assimilato","cls3":"Finanziario assimilato","rt":0,"lt":"D","rn":"","nu":"8","lt2":"","ord":[4,0,8,0]},{"c":"14.09","d":"Debiti da liquidare","t":"Finanziario","de":"SP","e":"A","g":"DEBITI COMMERCIALI","sez":"Stato patrimoniale — Passivo","cls":"Finanziario assimilato","cls3":"Finanziario assimilato","rt":0,"lt":"D","rn":"","nu":"7","lt2":"","ord":[4,0,7,0]},{"c":"14.15","d":"Debiti per acconti a fornitori","t":"Finanziario","de":"SP","e":"A","g":"DEBITI COMMERCIALI","sez":"Stato patrimoniale — Passivo","cls":"Finanziario assimilato","cls3":"Finanziario assimilato","rt":0,"lt":"D","rn":"","nu":"7","lt2":"","ord":[4,0,7,0]},{"c":"14.20","d":"Clienti c/acconti","t":"Finanziario","de":"SP","e":"A","g":"DEBITI COMMERCIALI","sez":"Stato patrimoniale — Passivo","cls":"Finanziario assimilato","cls3":"Finanziario assimilato","rt":0,"lt":"D","rn":"","nu":"6","lt2":"","ord":[4,0,6,0]},{"c":"15.01","d":"IVA ns/debito","t":"Finanziario","de":"SP","e":"A","g":"DEBITI DIVERSI","sez":"Non iscritto in bilancio","cls":"Finanziario assimilato","cls3":"Finanziario assimilato","rt":0,"lt":"","rn":"","nu":"","lt2":"","ord":[99,0,0,0]},{"c":"15.02","d":"Debiti per ritenute da versare","t":"Finanziario","de":"SP","e":"A","g":"DEBITI DIVERSI","sez":"Stato patrimoniale — Passivo","cls":"Finanziario assimilato","cls3":"Finanziario assimilato","rt":0,"lt":"D","rn":"","nu":"12","lt2":"","ord":[4,0,12,0]},{"c":"15.03","d":"Debiti per IVA","t":"Finanziario","de":"SP","e":"A","g":"DEBITI DIVERSI","sez":"Stato patrimoniale — Passivo","cls":"Finanziario assimilato","cls3":"Finanziario assimilato","rt":0,"lt":"D","rn":"","nu":"12","lt2":"","ord":[4,0,12,0]},{"c":"15.04","d":"Debiti per imposte","t":"Finanziario","de":"SP","e":"A","g":"DEBITI DIVERSI","sez":"Stato patrimoniale — Passivo","cls":"Finanziario assimilato","cls3":"Finanziario assimilato","rt":0,"lt":"D","rn":"","nu":"12","lt2":"","ord":[4,0,12,0]},{"c":"15.05","d":"Debiti fiscali diversi","t":"Finanziario","de":"SP","e":"A","g":"DEBITI DIVERSI","sez":"Stato patrimoniale — Passivo","cls":"Finanziario assimilato","cls3":"Finanziario assimilato","rt":0,"lt":"D","rn":"","nu":"12","lt2":"","ord":[4,0,12,0]},{"c":"15.06","d":"Debiti v/Istituti previdenziali","t":"Finanziario","de":"SP","e":"A","g":"DEBITI DIVERSI","sez":"Stato patrimoniale — Passivo","cls":"Finanziario assimilato","cls3":"Finanziario assimilato","rt":0,"lt":"D","rn":"","nu":"13","lt2":"","ord":[4,0,13,0]},{"c":"15.07","d":"Debiti per cauzioni","t":"Finanziario","de":"SP","e":"A","g":"DEBITI DIVERSI","sez":"Stato patrimoniale — Passivo","cls":"Finanziario assimilato","cls3":"Finanziario assimilato","rt":0,"lt":"D","rn":"","nu":"14","lt2":"","ord":[4,0,14,0]},{"c":"15.20","d":"Personale c/retribuzioni","t":"Finanziario","de":"SP","e":"A","g":"DEBITI DIVERSI","sez":"Stato patrimoniale — Passivo","cls":"Finanziario assimilato","cls3":"Finanziario assimilato","rt":0,"lt":"D","rn":"","nu":"14","lt2":"","ord":[4,0,14,0]},{"c":"15.21","d":"Personale c/liquidazione","t":"Finanziario","de":"SP","e":"A","g":"DEBITI DIVERSI","sez":"Stato patrimoniale — Passivo","cls":"Finanziario assimilato","cls3":"Finanziario assimilato","rt":0,"lt":"D","rn":"","nu":"14","lt2":"","ord":[4,0,14,0]},{"c":"15.22","d":"Debiti v/fondi pensione","t":"Finanziario","de":"SP","e":"A","g":"DEBITI DIVERSI","sez":"Stato patrimoniale — Passivo","cls":"Finanziario assimilato","cls3":"Finanziario assimilato","rt":0,"lt":"D","rn":"","nu":"14","lt2":"","ord":[4,0,14,0]},{"c":"15.30","d":"Debiti diversi","t":"Finanziario","de":"SP","e":"A","g":"DEBITI DIVERSI","sez":"Stato patrimoniale — Passivo","cls":"Finanziario assimilato","cls3":"Finanziario assimilato","rt":0,"lt":"D","rn":"","nu":"14","lt2":"","ord":[4,0,14,0]},{"c":"15.40","d":"Azionisti c/dividendi","t":"Finanziario","de":"SP","e":"A","g":"DEBITI DIVERSI","sez":"Stato patrimoniale — Passivo","cls":"Finanziario assimilato","cls3":"Finanziario assimilato","rt":0,"lt":"D","rn":"","nu":"14","lt2":"","ord":[4,0,14,0]},{"c":"15.50","d":"Azionisti c/rimborso","t":"Finanziario","de":"SP","e":"A","g":"DEBITI DIVERSI","sez":"Stato patrimoniale — Passivo","cls":"Finanziario assimilato","cls3":"Finanziario assimilato","rt":0,"lt":"D","rn":"","nu":"14","lt2":"","ord":[4,0,14,0]},{"c":"15.51","d":"Debiti per azioni estratte","t":"Finanziario","de":"SP","e":"A","g":"DEBITI DIVERSI","sez":"Stato patrimoniale — Passivo","cls":"Finanziario assimilato","cls3":"Finanziario assimilato","rt":0,"lt":"D","rn":"","nu":"14","lt2":"","ord":[4,0,14,0]},{"c":"15.60","d":"Obbligazionisti c/interessi","t":"Finanziario","de":"SP","e":"A","g":"DEBITI DIVERSI","sez":"Stato patrimoniale — Passivo","cls":"Finanziario assimilato","cls3":"Finanziario assimilato","rt":0,"lt":"D","rn":"","nu":"14","lt2":"","ord":[4,0,14,0]},{"c":"15.61","d":"Obbligazionisti c/rimborsi","t":"Finanziario","de":"SP","e":"A","g":"DEBITI DIVERSI","sez":"Stato patrimoniale — Passivo","cls":"Finanziario assimilato","cls3":"Finanziario assimilato","rt":0,"lt":"D","rn":"","nu":"14","lt2":"","ord":[4,0,14,0]},{"c":"15.70","d":"Amministratori c/competenze","t":"Finanziario","de":"SP","e":"A","g":"DEBITI DIVERSI","sez":"Stato patrimoniale — Passivo","cls":"Finanziario assimilato","cls3":"Finanziario assimilato","rt":0,"lt":"D","rn":"","nu":"14","lt2":"","ord":[4,0,14,0]},{"c":"15.71","d":"Sindaci c/competenze","t":"Finanziario","de":"SP","e":"A","g":"DEBITI DIVERSI","sez":"Stato patrimoniale — Passivo","cls":"Finanziario assimilato","cls3":"Finanziario assimilato","rt":0,"lt":"D","rn":"","nu":"14","lt2":"","ord":[4,0,14,0]},{"c":"16.01","d":"Ratei passivi","t":"Finanziario","de":"SP","e":"A","g":"RATEI E RISCONTI PASSIVI","sez":"Stato patrimoniale — Passivo","cls":"Finanziario presunto","cls3":"Finanziario presunto","rt":0,"lt":"E","rn":"","nu":"","lt2":"","ord":[5,0,0,0]},{"c":"16.02","d":"Risconti passivi","t":"Economico","de":"SP","e":"A","g":"RATEI E RISCONTI PASSIVI","sez":"Stato patrimoniale — Passivo","cls":"Economico di reddito","cls3":"Economico di reddito — ricavo sospeso","rt":0,"lt":"E","rn":"","nu":"","lt2":"","ord":[5,0,0,0]},{"c":"18.01","d":"Bilancio di apertura","t":"Transitorio","de":"—","e":"—","g":"CONTI TRANSITORI E DIVERSI","sez":"Non iscritto in bilancio","cls":"Transitorio","cls3":"Transitorio","rt":0,"lt":"","rn":"","nu":"","lt2":"","ord":[99,0,0,0]},{"c":"18.02","d":"Bilancio di chiusura","t":"Transitorio","de":"—","e":"—","g":"CONTI TRANSITORI E DIVERSI","sez":"Non iscritto in bilancio","cls":"Transitorio","cls3":"Transitorio","rt":0,"lt":"","rn":"","nu":"","lt2":"","ord":[99,0,0,0]},{"c":"18.10","d":"IVA c/liquidazione","t":"Finanziario","de":"SP","e":"D/A","g":"CONTI TRANSITORI E DIVERSI","sez":"Non iscritto in bilancio","cls":"Finanziario bilaterale","cls3":"Finanziario bilaterale","rt":0,"lt":"","rn":"","nu":"","lt2":"","ord":[99,0,0,0]},{"c":"18.11","d":"Istituti previdenziali","t":"Finanziario","de":"SP","e":"D/A","g":"CONTI TRANSITORI E DIVERSI","sez":"Non iscritto in bilancio","cls":"Finanziario bilaterale","cls3":"Finanziario bilaterale","rt":0,"lt":"","rn":"","nu":"","lt2":"","ord":[99,0,0,0]},{"c":"18.20","d":"Banca X c/c","t":"Finanziario","de":"SP","e":"D/A","g":"CONTI TRANSITORI E DIVERSI","sez":"Non iscritto in bilancio","cls":"Finanziario bilaterale","cls3":"Finanziario bilaterale","rt":0,"lt":"","rn":"","nu":"","lt2":"","ord":[99,0,0,0]},{"c":"18.30","d":"Società di factoring c/c","t":"Finanziario","de":"SP","e":"D/A","g":"CONTI TRANSITORI E DIVERSI","sez":"Non iscritto in bilancio","cls":"Finanziario bilaterale","cls3":"Finanziario bilaterale","rt":0,"lt":"","rn":"","nu":"","lt2":"","ord":[99,0,0,0]},{"c":"19.01","d":"Beni di terzi","t":"Conto d’ordine","de":"—","e":"D","g":"CONTI DEI SISTEMI MINORI","sez":"Non iscritto in bilancio","cls":"Conto d’ordine","cls3":"Conto d’ordine","rt":0,"lt":"","rn":"","nu":"","lt2":"","ord":[99,0,0,0]},{"c":"19.02","d":"Depositanti beni","t":"Conto d’ordine","de":"—","e":"A","g":"CONTI DEI SISTEMI MINORI","sez":"Non iscritto in bilancio","cls":"Conto d’ordine","cls3":"Conto d’ordine","rt":0,"lt":"","rn":"","nu":"","lt2":"","ord":[99,0,0,0]},{"c":"19.11","d":"Impegni per beni in leasing","t":"Conto d’ordine","de":"—","e":"D","g":"CONTI DEI SISTEMI MINORI","sez":"Non iscritto in bilancio","cls":"Conto d’ordine","cls3":"Conto d’ordine","rt":0,"lt":"","rn":"","nu":"","lt2":"","ord":[99,0,0,0]},{"c":"19.12","d":"Creditori c/leasing","t":"Conto d’ordine","de":"—","e":"A","g":"CONTI DEI SISTEMI MINORI","sez":"Non iscritto in bilancio","cls":"Conto d’ordine","cls3":"Conto d’ordine","rt":0,"lt":"","rn":"","nu":"","lt2":"","ord":[99,0,0,0]},{"c":"19.21","d":"Rischi per fideiussioni","t":"Conto d’ordine","de":"—","e":"D","g":"CONTI DEI SISTEMI MINORI","sez":"Non iscritto in bilancio","cls":"Conto d’ordine","cls3":"Conto d’ordine","rt":0,"lt":"","rn":"","nu":"","lt2":"","ord":[99,0,0,0]},{"c":"19.22","d":"Creditori per fideiussioni","t":"Conto d’ordine","de":"—","e":"A","g":"CONTI DEI SISTEMI MINORI","sez":"Non iscritto in bilancio","cls":"Conto d’ordine","cls3":"Conto d’ordine","rt":0,"lt":"","rn":"","nu":"","lt2":"","ord":[99,0,0,0]},{"c":"20.01","d":"Prodotti c/vendite","t":"Economico","de":"SE","e":"A","g":"VALORE DELLA PRODUZIONE","sez":"Conto economico","cls":"Economico di reddito","cls3":"Economico di reddito — ricavo d’esercizio","rt":0,"lt":"A","rn":"","nu":"1","lt2":"","ord":[1,0,1,0]},{"c":"20.02","d":"Prodotti c/vendite on line","t":"Economico","de":"SE","e":"A","g":"VALORE DELLA PRODUZIONE","sez":"Conto economico","cls":"Economico di reddito","cls3":"Economico di reddito — ricavo d’esercizio","rt":0,"lt":"A","rn":"","nu":"1","lt2":"","ord":[1,0,1,0]},{"c":"20.03","d":"Servizi on line","t":"Economico","de":"SE","e":"A","g":"VALORE DELLA PRODUZIONE","sez":"Conto economico","cls":"Economico di reddito","cls3":"Economico di reddito — ricavo d’esercizio","rt":0,"lt":"A","rn":"","nu":"1","lt2":"","ord":[1,0,1,0]},{"c":"20.05","d":"Lavorazioni c/terzi","t":"Economico","de":"SE","e":"A","g":"VALORE DELLA PRODUZIONE","sez":"Conto economico","cls":"Economico di reddito","cls3":"Economico di reddito — ricavo d’esercizio","rt":0,"lt":"A","rn":"","nu":"1","lt2":"","ord":[1,0,1,0]},{"c":"20.06","d":"Merci c/vendite","t":"Economico","de":"SE","e":"A","g":"VALORE DELLA PRODUZIONE","sez":"Conto economico","cls":"Economico di reddito","cls3":"Economico di reddito — ricavo d’esercizio","rt":0,"lt":"A","rn":"","nu":"1","lt2":"","ord":[1,0,1,0]},{"c":"20.07","d":"Merci c/vendite on line","t":"Economico","de":"SE","e":"A","g":"VALORE DELLA PRODUZIONE","sez":"Conto economico","cls":"Economico di reddito","cls3":"Economico di reddito — ricavo d’esercizio","rt":0,"lt":"A","rn":"","nu":"1","lt2":"","ord":[1,0,1,0]},{"c":"20.10","d":"Resi su vendite","t":"Economico","de":"SE","e":"D","g":"VALORE DELLA PRODUZIONE","sez":"Conto economico","cls":"Economico di reddito","cls3":"Economico di reddito — ricavo d’esercizio","rt":1,"lt":"A","rn":"","nu":"1","lt2":"","ord":[1,0,1,0]},{"c":"20.11","d":"Ribassi e abbuoni passivi","t":"Economico","de":"SE","e":"D","g":"VALORE DELLA PRODUZIONE","sez":"Conto economico","cls":"Economico di reddito","cls3":"Economico di reddito — ricavo d’esercizio","rt":1,"lt":"A","rn":"","nu":"1","lt2":"","ord":[1,0,1,0]},{"c":"20.12","d":"Premi su vendite","t":"Economico","de":"SE","e":"D","g":"VALORE DELLA PRODUZIONE","sez":"Conto economico","cls":"Economico di reddito","cls3":"Economico di reddito — ricavo d’esercizio","rt":1,"lt":"A","rn":"","nu":"1","lt2":"","ord":[1,0,1,0]},{"c":"20.20","d":"Costruzioni interne","t":"Economico","de":"SE","e":"A","g":"VALORE DELLA PRODUZIONE","sez":"Conto economico","cls":"Economico di reddito","cls3":"Economico di reddito — costo d’esercizio","rt":1,"lt":"A","rn":"","nu":"4","lt2":"","ord":[1,0,4,0]},{"c":"20.21","d":"Costi di sviluppo rinviati","t":"Economico","de":"SE","e":"A","g":"VALORE DELLA PRODUZIONE","sez":"Conto economico","cls":"Economico di reddito","cls3":"Economico di reddito — costo d’esercizio","rt":1,"lt":"A","rn":"","nu":"4","lt2":"","ord":[1,0,4,0]},{"c":"20.30","d":"Rimborsi costi di vendita","t":"Economico","de":"SE","e":"A","g":"VALORE DELLA PRODUZIONE","sez":"Conto economico","cls":"Economico di reddito","cls3":"Economico di reddito — ricavo d’esercizio","rt":0,"lt":"A","rn":"","nu":"5","lt2":"","ord":[1,0,5,0]},{"c":"20.32","d":"Fitti attivi","t":"Economico","de":"SE","e":"A","g":"VALORE DELLA PRODUZIONE","sez":"Conto economico","cls":"Economico di reddito","cls3":"Economico di reddito — ricavo d’esercizio","rt":0,"lt":"A","rn":"","nu":"5","lt2":"","ord":[1,0,5,0]},{"c":"20.33","d":"Contributi in c/esercizio","t":"Economico","de":"SE","e":"A","g":"VALORE DELLA PRODUZIONE","sez":"Conto economico","cls":"Economico di reddito","cls3":"Economico di reddito — ricavo d’esercizio","rt":0,"lt":"A","rn":"","nu":"5","lt2":"","ord":[1,0,5,0]},{"c":"20.34","d":"Contributi in c/impianti","t":"Economico","de":"SE","e":"A","g":"VALORE DELLA PRODUZIONE","sez":"Conto economico","cls":"Economico di reddito","cls3":"Economico di reddito — ricavo d’esercizio","rt":0,"lt":"A","rn":"","nu":"5","lt2":"","ord":[1,0,5,0]},{"c":"20.38","d":"Proventi vari","t":"Economico","de":"SE","e":"A","g":"VALORE DELLA PRODUZIONE","sez":"Conto economico","cls":"Economico di reddito","cls3":"Economico di reddito — ricavo d’esercizio","rt":0,"lt":"A","rn":"","nu":"5","lt2":"","ord":[1,0,5,0]},{"c":"20.39","d":"Arrotondamenti attivi","t":"Economico","de":"SE","e":"A","g":"VALORE DELLA PRODUZIONE","sez":"Conto economico","cls":"Economico di reddito","cls3":"Economico di reddito — ricavo d’esercizio","rt":0,"lt":"A","rn":"","nu":"5","lt2":"","ord":[1,0,5,0]},{"c":"20.40","d":"Plusvalenze","t":"Economico","de":"SE","e":"A","g":"VALORE DELLA PRODUZIONE","sez":"Conto economico","cls":"Economico di reddito","cls3":"Economico di reddito — ricavo d’esercizio","rt":0,"lt":"A","rn":"","nu":"5","lt2":"","ord":[1,0,5,0]},{"c":"20.41","d":"Sopravvenienze attive","t":"Economico","de":"SE","e":"A","g":"VALORE DELLA PRODUZIONE","sez":"Conto economico","cls":"Economico di reddito","cls3":"Economico di reddito — ricavo d’esercizio","rt":0,"lt":"A","rn":"","nu":"5","lt2":"","ord":[1,0,5,0]},{"c":"20.42","d":"Insussistenze attive","t":"Economico","de":"SE","e":"A","g":"VALORE DELLA PRODUZIONE","sez":"Conto economico","cls":"Economico di reddito","cls3":"Economico di reddito — ricavo d’esercizio","rt":0,"lt":"A","rn":"","nu":"5","lt2":"","ord":[1,0,5,0]},{"c":"20.46","d":"Rivalutazione terreni e fabbricati","t":"Economico","de":"SE","e":"A","g":"VALORE DELLA PRODUZIONE","sez":"Conto economico","cls":"Economico di reddito","cls3":"Economico di reddito — ricavo d’esercizio","rt":0,"lt":"A","rn":"","nu":"5","lt2":"","ord":[1,0,5,0]},{"c":"20.47","d":"Rivalutazione impianti e macchinari","t":"Economico","de":"SE","e":"A","g":"VALORE DELLA PRODUZIONE","sez":"Conto economico","cls":"Economico di reddito","cls3":"Economico di reddito — ricavo d’esercizio","rt":0,"lt":"A","rn":"","nu":"5","lt2":"","ord":[1,0,5,0]},{"c":"21.04","d":"Prodotti in lavorazione c/esistenze iniziali","t":"Economico","de":"SE","e":"D","g":"VARIAZIONI DELLE RIMANENZE","sez":"Conto economico","cls":"Economico di reddito","cls3":"Economico di reddito — costo d’esercizio","rt":0,"lt":"A","rn":"","nu":"2","lt2":"","ord":[1,0,2,0]},{"c":"21.05","d":"Semilavorati c/esistenze iniziali","t":"Economico","de":"SE","e":"D","g":"VARIAZIONI DELLE RIMANENZE","sez":"Conto economico","cls":"Economico di reddito","cls3":"Economico di reddito — costo d’esercizio","rt":0,"lt":"A","rn":"","nu":"2","lt2":"","ord":[1,0,2,0]},{"c":"21.06","d":"Prodotti finiti c/esistenze iniziali","t":"Economico","de":"SE","e":"D","g":"VARIAZIONI DELLE RIMANENZE","sez":"Conto economico","cls":"Economico di reddito","cls3":"Economico di reddito — costo d’esercizio","rt":0,"lt":"A","rn":"","nu":"2","lt2":"","ord":[1,0,2,0]},{"c":"21.10","d":"Prodotti in lavorazione c/rimanenze finali","t":"Economico","de":"SE","e":"A","g":"VARIAZIONI DELLE RIMANENZE","sez":"Conto economico","cls":"Economico di reddito","cls3":"Economico di reddito — costo d’esercizio","rt":1,"lt":"A","rn":"","nu":"2","lt2":"","ord":[1,0,2,0]},{"c":"21.11","d":"Semilavorati c/rimanenze finali","t":"Economico","de":"SE","e":"A","g":"VARIAZIONI DELLE RIMANENZE","sez":"Conto economico","cls":"Economico di reddito","cls3":"Economico di reddito — costo d’esercizio","rt":1,"lt":"A","rn":"","nu":"2","lt2":"","ord":[1,0,2,0]},{"c":"21.12","d":"Prodotti finiti c/rimanenze finali","t":"Economico","de":"SE","e":"A","g":"VARIAZIONI DELLE RIMANENZE","sez":"Conto economico","cls":"Economico di reddito","cls3":"Economico di reddito — costo d’esercizio","rt":1,"lt":"A","rn":"","nu":"2","lt2":"","ord":[1,0,2,0]},{"c":"30.01","d":"Materie prime c/acquisti","t":"Economico","de":"SE","e":"D","g":"COSTI PER MATERIE","sez":"Conto economico","cls":"Economico di reddito","cls3":"Economico di reddito — costo d’esercizio","rt":0,"lt":"B","rn":"","nu":"6","lt2":"","ord":[2,0,6,0]},{"c":"30.02","d":"Materie sussidiarie c/acquisti","t":"Economico","de":"SE","e":"D","g":"COSTI PER MATERIE","sez":"Conto economico","cls":"Economico di reddito","cls3":"Economico di reddito — costo d’esercizio","rt":0,"lt":"B","rn":"","nu":"6","lt2":"","ord":[2,0,6,0]},{"c":"30.03","d":"Materie di consumo c/acquisti","t":"Economico","de":"SE","e":"D","g":"COSTI PER MATERIE","sez":"Conto economico","cls":"Economico di reddito","cls3":"Economico di reddito — costo d’esercizio","rt":0,"lt":"B","rn":"","nu":"6","lt2":"","ord":[2,0,6,0]},{"c":"30.04","d":"Materie c/apporti","t":"Economico","de":"SE","e":"D","g":"COSTI PER MATERIE","sez":"Conto economico","cls":"Economico di reddito","cls3":"Economico di reddito — costo d’esercizio","rt":0,"lt":"B","rn":"","nu":"6","lt2":"","ord":[2,0,6,0]},{"c":"30.05","d":"Merci c/acquisti","t":"Economico","de":"SE","e":"D","g":"COSTI PER MATERIE","sez":"Conto economico","cls":"Economico di reddito","cls3":"Economico di reddito — costo d’esercizio","rt":0,"lt":"B","rn":"","nu":"6","lt2":"","ord":[2,0,6,0]},{"c":"30.06","d":"Merci c/apporti","t":"Economico","de":"SE","e":"D","g":"COSTI PER MATERIE","sez":"Conto economico","cls":"Economico di reddito","cls3":"Economico di reddito — costo d’esercizio","rt":0,"lt":"B","rn":"","nu":"6","lt2":"","ord":[2,0,6,0]},{"c":"30.10","d":"Resi su acquisti","t":"Economico","de":"SE","e":"A","g":"COSTI PER MATERIE","sez":"Conto economico","cls":"Economico di reddito","cls3":"Economico di reddito — costo d’esercizio","rt":1,"lt":"B","rn":"","nu":"6","lt2":"","ord":[2,0,6,0]},{"c":"30.11","d":"Ribassi e abbuoni attivi","t":"Economico","de":"SE","e":"A","g":"COSTI PER MATERIE","sez":"Conto economico","cls":"Economico di reddito","cls3":"Economico di reddito — costo d’esercizio","rt":1,"lt":"B","rn":"","nu":"6","lt2":"","ord":[2,0,6,0]},{"c":"30.12","d":"Premi su acquisti","t":"Economico","de":"SE","e":"A","g":"COSTI PER MATERIE","sez":"Conto economico","cls":"Economico di reddito","cls3":"Economico di reddito — costo d’esercizio","rt":1,"lt":"B","rn":"","nu":"6","lt2":"","ord":[2,0,6,0]},{"c":"31.01","d":"Costi di trasporto","t":"Economico","de":"SE","e":"D","g":"COSTI PER SERVIZI","sez":"Conto economico","cls":"Economico di reddito","cls3":"Economico di reddito — costo d’esercizio","rt":0,"lt":"B","rn":"","nu":"7","lt2":"","ord":[2,0,7,0]},{"c":"31.02","d":"Costi per energia","t":"Economico","de":"SE","e":"D","g":"COSTI PER SERVIZI","sez":"Conto economico","cls":"Economico di reddito","cls3":"Economico di reddito — costo d’esercizio","rt":0,"lt":"B","rn":"","nu":"7","lt2":"","ord":[2,0,7,0]},{"c":"31.03","d":"Pubblicità","t":"Economico","de":"SE","e":"D","g":"COSTI PER SERVIZI","sez":"Conto economico","cls":"Economico di reddito","cls3":"Economico di reddito — costo d’esercizio","rt":0,"lt":"B","rn":"","nu":"7","lt2":"","ord":[2,0,7,0]},{"c":"31.04","d":"Consulenze","t":"Economico","de":"SE","e":"D","g":"COSTI PER SERVIZI","sez":"Conto economico","cls":"Economico di reddito","cls3":"Economico di reddito — costo d’esercizio","rt":0,"lt":"B","rn":"","nu":"7","lt2":"","ord":[2,0,7,0]},{"c":"31.05","d":"Costi telefonici","t":"Economico","de":"SE","e":"D","g":"COSTI PER SERVIZI","sez":"Conto economico","cls":"Economico di reddito","cls3":"Economico di reddito — costo d’esercizio","rt":0,"lt":"B","rn":"","nu":"7","lt2":"","ord":[2,0,7,0]},{"c":"31.06","d":"Costi di vigilanza","t":"Economico","de":"SE","e":"D","g":"COSTI PER SERVIZI","sez":"Conto economico","cls":"Economico di reddito","cls3":"Economico di reddito — costo d’esercizio","rt":0,"lt":"B","rn":"","nu":"7","lt2":"","ord":[2,0,7,0]},{"c":"31.07","d":"Costi postali","t":"Economico","de":"SE","e":"D","g":"COSTI PER SERVIZI","sez":"Conto economico","cls":"Economico di reddito","cls3":"Economico di reddito — costo d’esercizio","rt":0,"lt":"B","rn":"","nu":"7","lt2":"","ord":[2,0,7,0]},{"c":"31.08","d":"Assicurazioni","t":"Economico","de":"SE","e":"D","g":"COSTI PER SERVIZI","sez":"Conto economico","cls":"Economico di reddito","cls3":"Economico di reddito — costo d’esercizio","rt":0,"lt":"B","rn":"","nu":"7","lt2":"","ord":[2,0,7,0]},{"c":"31.09","d":"Costi per i locali","t":"Economico","de":"SE","e":"D","g":"COSTI PER SERVIZI","sez":"Conto economico","cls":"Economico di reddito","cls3":"Economico di reddito — costo d’esercizio","rt":0,"lt":"B","rn":"","nu":"7","lt2":"","ord":[2,0,7,0]},{"c":"31.10","d":"Manutenzioni e riparazioni","t":"Economico","de":"SE","e":"D","g":"COSTI PER SERVIZI","sez":"Conto economico","cls":"Economico di reddito","cls3":"Economico di reddito — costo d’esercizio","rt":0,"lt":"B","rn":"","nu":"7","lt2":"","ord":[2,0,7,0]},{"c":"31.11","d":"Costi di etichettatura","t":"Economico","de":"SE","e":"D","g":"COSTI PER SERVIZI","sez":"Conto economico","cls":"Economico di reddito","cls3":"Economico di reddito — costo d’esercizio","rt":0,"lt":"B","rn":"","nu":"7","lt2":"","ord":[2,0,7,0]},{"c":"31.12","d":"Lavorazioni presso terzi","t":"Economico","de":"SE","e":"D","g":"COSTI PER SERVIZI","sez":"Conto economico","cls":"Economico di reddito","cls3":"Economico di reddito — costo d’esercizio","rt":0,"lt":"B","rn":"","nu":"7","lt2":"","ord":[2,0,7,0]},{"c":"31.13","d":"Provvigioni passive","t":"Economico","de":"SE","e":"D","g":"COSTI PER SERVIZI","sez":"Conto economico","cls":"Economico di reddito","cls3":"Economico di reddito — costo d’esercizio","rt":0,"lt":"B","rn":"","nu":"7","lt2":"","ord":[2,0,7,0]},{"c":"31.14","d":"Costi di incasso","t":"Economico","de":"SE","e":"D","g":"COSTI PER SERVIZI","sez":"Conto economico","cls":"Economico di reddito","cls3":"Economico di reddito — costo d’esercizio","rt":0,"lt":"B","rn":"","nu":"7","lt2":"","ord":[2,0,7,0]},{"c":"31.15","d":"Commissioni bancarie","t":"Economico","de":"SE","e":"D","g":"COSTI PER SERVIZI","sez":"Conto economico","cls":"Economico di reddito","cls3":"Economico di reddito — costo d’esercizio","rt":0,"lt":"B","rn":"","nu":"7","lt2":"","ord":[2,0,7,0]},{"c":"31.16","d":"Costi di tenuta c/c","t":"Economico","de":"SE","e":"D","g":"COSTI PER SERVIZI","sez":"Conto economico","cls":"Economico di reddito","cls3":"Economico di reddito — costo d’esercizio","rt":0,"lt":"B","rn":"","nu":"7","lt2":"","ord":[2,0,7,0]},{"c":"31.17","d":"Oneri di factoring","t":"Economico","de":"SE","e":"D","g":"COSTI PER SERVIZI","sez":"Conto economico","cls":"Economico di reddito","cls3":"Economico di reddito — costo d’esercizio","rt":0,"lt":"B","rn":"","nu":"7","lt2":"","ord":[2,0,7,0]},{"c":"31.70","d":"Competenze amministratori","t":"Economico","de":"SE","e":"D","g":"COSTI PER SERVIZI","sez":"Conto economico","cls":"Economico di reddito","cls3":"Economico di reddito — costo d’esercizio","rt":0,"lt":"B","rn":"","nu":"7","lt2":"","ord":[2,0,7,0]},{"c":"31.71","d":"Competenze sindaci","t":"Economico","de":"SE","e":"D","g":"COSTI PER SERVIZI","sez":"Conto economico","cls":"Economico di reddito","cls3":"Economico di reddito — costo d’esercizio","rt":0,"lt":"B","rn":"","nu":"7","lt2":"","ord":[2,0,7,0]},{"c":"32.01","d":"Fitti passivi","t":"Economico","de":"SE","e":"D","g":"COSTI PER GODIMENTO BENI DI TERZI","sez":"Conto economico","cls":"Economico di reddito","cls3":"Economico di reddito — costo d’esercizio","rt":0,"lt":"B","rn":"","nu":"8","lt2":"","ord":[2,0,8,0]},{"c":"32.02","d":"Canoni di leasing","t":"Economico","de":"SE","e":"D","g":"COSTI PER GODIMENTO BENI DI TERZI","sez":"Conto economico","cls":"Economico di reddito","cls3":"Economico di reddito — costo d’esercizio","rt":0,"lt":"B","rn":"","nu":"8","lt2":"","ord":[2,0,8,0]},{"c":"33.01","d":"Salari e stipendi","t":"Economico","de":"SE","e":"D","g":"COSTI PER IL PERSONALE","sez":"Conto economico","cls":"Economico di reddito","cls3":"Economico di reddito — costo d’esercizio","rt":0,"lt":"B","rn":"","nu":"9","lt2":"a","ord":[2,0,9,10]},{"c":"33.02","d":"Oneri sociali","t":"Economico","de":"SE","e":"D","g":"COSTI PER IL PERSONALE","sez":"Conto economico","cls":"Economico di reddito","cls3":"Economico di reddito — costo d’esercizio","rt":0,"lt":"B","rn":"","nu":"9","lt2":"b","ord":[2,0,9,20]},{"c":"33.03","d":"TFR","t":"Economico","de":"SE","e":"D","g":"COSTI PER IL PERSONALE","sez":"Conto economico","cls":"Economico di reddito","cls3":"Economico di reddito — costo d’esercizio","rt":0,"lt":"B","rn":"","nu":"9","lt2":"c","ord":[2,0,9,30]},{"c":"33.04","d":"Altri costi per il personale","t":"Economico","de":"SE","e":"D","g":"COSTI PER IL PERSONALE","sez":"Conto economico","cls":"Economico di reddito","cls3":"Economico di reddito — costo d’esercizio","rt":0,"lt":"B","rn":"","nu":"9","lt2":"e","ord":[2,0,9,50]},{"c":"34.01","d":"Ammortamento costi di impianto","t":"Economico","de":"SE","e":"D","g":"AMMORTAMENTI IMMOBILIZZAZIONI","sez":"Conto economico","cls":"Economico di reddito","cls3":"Economico di reddito — costo d’esercizio","rt":0,"lt":"B","rn":"","nu":"10","lt2":"a","ord":[2,0,10,10]},{"c":"34.02","d":"Ammortamento costi di ampliamento","t":"Economico","de":"SE","e":"D","g":"AMMORTAMENTI IMMOBILIZZAZIONI","sez":"Conto economico","cls":"Economico di reddito","cls3":"Economico di reddito — costo d’esercizio","rt":0,"lt":"B","rn":"","nu":"10","lt2":"a","ord":[2,0,10,10]},{"c":"34.03","d":"Ammortamento costi di sviluppo","t":"Economico","de":"SE","e":"D","g":"AMMORTAMENTI IMMOBILIZZAZIONI","sez":"Conto economico","cls":"Economico di reddito","cls3":"Economico di reddito — costo d’esercizio","rt":0,"lt":"B","rn":"","nu":"10","lt2":"a","ord":[2,0,10,10]},{"c":"34.04","d":"Ammortamento brevetti","t":"Economico","de":"SE","e":"D","g":"AMMORTAMENTI IMMOBILIZZAZIONI","sez":"Conto economico","cls":"Economico di reddito","cls3":"Economico di reddito — costo d’esercizio","rt":0,"lt":"B","rn":"","nu":"10","lt2":"a","ord":[2,0,10,10]},{"c":"34.05","d":"Ammortamento software","t":"Economico","de":"SE","e":"D","g":"AMMORTAMENTI IMMOBILIZZAZIONI","sez":"Conto economico","cls":"Economico di reddito","cls3":"Economico di reddito — costo d’esercizio","rt":0,"lt":"B","rn":"","nu":"10","lt2":"a","ord":[2,0,10,10]},{"c":"34.06","d":"Ammortamento avviamento","t":"Economico","de":"SE","e":"D","g":"AMMORTAMENTI IMMOBILIZZAZIONI","sez":"Conto economico","cls":"Economico di reddito","cls3":"Economico di reddito — costo d’esercizio","rt":0,"lt":"B","rn":"","nu":"10","lt2":"a","ord":[2,0,10,10]},{"c":"35.01","d":"Ammortamento fabbricati","t":"Economico","de":"SE","e":"D","g":"AMMORTAMENTI IMMOBILIZZAZIONI","sez":"Conto economico","cls":"Economico di reddito","cls3":"Economico di reddito — costo d’esercizio","rt":0,"lt":"B","rn":"","nu":"10","lt2":"b","ord":[2,0,10,20]},{"c":"35.02","d":"Ammortamento impianti e macchinari","t":"Economico","de":"SE","e":"D","g":"AMMORTAMENTI IMMOBILIZZAZIONI","sez":"Conto economico","cls":"Economico di reddito","cls3":"Economico di reddito — costo d’esercizio","rt":0,"lt":"B","rn":"","nu":"10","lt2":"b","ord":[2,0,10,20]},{"c":"35.03","d":"Ammortamento attrezzature industriali","t":"Economico","de":"SE","e":"D","g":"AMMORTAMENTI IMMOBILIZZAZIONI","sez":"Conto economico","cls":"Economico di reddito","cls3":"Economico di reddito — costo d’esercizio","rt":0,"lt":"B","rn":"","nu":"10","lt2":"b","ord":[2,0,10,20]},{"c":"35.04","d":"Ammortamento attrezzature commerciali","t":"Economico","de":"SE","e":"D","g":"AMMORTAMENTI IMMOBILIZZAZIONI","sez":"Conto economico","cls":"Economico di reddito","cls3":"Economico di reddito — costo d’esercizio","rt":0,"lt":"B","rn":"","nu":"10","lt2":"b","ord":[2,0,10,20]},{"c":"35.05","d":"Ammortamento macchine d’ufficio","t":"Economico","de":"SE","e":"D","g":"AMMORTAMENTI IMMOBILIZZAZIONI","sez":"Conto economico","cls":"Economico di reddito","cls3":"Economico di reddito — costo d’esercizio","rt":0,"lt":"B","rn":"","nu":"10","lt2":"b","ord":[2,0,10,20]},{"c":"35.06","d":"Ammortamento arredamento","t":"Economico","de":"SE","e":"D","g":"AMMORTAMENTI IMMOBILIZZAZIONI","sez":"Conto economico","cls":"Economico di reddito","cls3":"Economico di reddito — costo d’esercizio","rt":0,"lt":"B","rn":"","nu":"10","lt2":"b","ord":[2,0,10,20]},{"c":"35.07","d":"Ammortamento automezzi","t":"Economico","de":"SE","e":"D","g":"AMMORTAMENTI IMMOBILIZZAZIONI","sez":"Conto economico","cls":"Economico di reddito","cls3":"Economico di reddito — costo d’esercizio","rt":0,"lt":"B","rn":"","nu":"10","lt2":"b","ord":[2,0,10,20]},{"c":"35.08","d":"Ammortamento imballaggi durevoli","t":"Economico","de":"SE","e":"D","g":"AMMORTAMENTI IMMOBILIZZAZIONI","sez":"Conto economico","cls":"Economico di reddito","cls3":"Economico di reddito — costo d’esercizio","rt":0,"lt":"B","rn":"","nu":"10","lt2":"b","ord":[2,0,10,20]},{"c":"36.01","d":"Svalutazione terreni e fabbricati","t":"Economico","de":"SE","e":"D","g":"SVALUTAZIONI","sez":"Conto economico","cls":"Economico di reddito","cls3":"Economico di reddito — costo d’esercizio","rt":0,"lt":"B","rn":"","nu":"10","lt2":"c","ord":[2,0,10,30]},{"c":"36.02","d":"Svalutazione impianti e macchinari","t":"Economico","de":"SE","e":"D","g":"SVALUTAZIONI","sez":"Conto economico","cls":"Economico di reddito","cls3":"Economico di reddito — costo d’esercizio","rt":0,"lt":"B","rn":"","nu":"10","lt2":"c","ord":[2,0,10,30]},{"c":"36.20","d":"Svalutazione crediti","t":"Economico","de":"SE","e":"D","g":"SVALUTAZIONI","sez":"Conto economico","cls":"Economico di reddito","cls3":"Economico di reddito — costo d’esercizio","rt":0,"lt":"B","rn":"","nu":"10","lt2":"d","ord":[2,0,10,40]},{"c":"37.01","d":"Materie prime c/esistenze iniziali","t":"Economico","de":"SE","e":"D","g":"VARIAZIONI DELLE RIMANENZE","sez":"Conto economico","cls":"Economico di reddito","cls3":"Economico di reddito — costo d’esercizio","rt":0,"lt":"B","rn":"","nu":"11","lt2":"","ord":[2,0,11,0]},{"c":"37.02","d":"Materie sussidiarie c/esistenze iniziali","t":"Economico","de":"SE","e":"D","g":"VARIAZIONI DELLE RIMANENZE","sez":"Conto economico","cls":"Economico di reddito","cls3":"Economico di reddito — costo d’esercizio","rt":0,"lt":"B","rn":"","nu":"11","lt2":"","ord":[2,0,11,0]},{"c":"37.03","d":"Materie di consumo c/esistenze iniziali","t":"Economico","de":"SE","e":"D","g":"VARIAZIONI DELLE RIMANENZE","sez":"Conto economico","cls":"Economico di reddito","cls3":"Economico di reddito — costo d’esercizio","rt":0,"lt":"B","rn":"","nu":"11","lt2":"","ord":[2,0,11,0]},{"c":"37.04","d":"Merci c/esistenze iniziali","t":"Economico","de":"SE","e":"D","g":"VARIAZIONI DELLE RIMANENZE","sez":"Conto economico","cls":"Economico di reddito","cls3":"Economico di reddito — costo d’esercizio","rt":0,"lt":"B","rn":"","nu":"11","lt2":"","ord":[2,0,11,0]},{"c":"37.10","d":"Materie prime c/rimanenze finali","t":"Economico","de":"SE","e":"A","g":"VARIAZIONI DELLE RIMANENZE","sez":"Conto economico","cls":"Economico di reddito","cls3":"Economico di reddito — costo d’esercizio","rt":1,"lt":"B","rn":"","nu":"11","lt2":"","ord":[2,0,11,0]},{"c":"37.11","d":"Materie sussidiarie c/rimanenze finali","t":"Economico","de":"SE","e":"A","g":"VARIAZIONI DELLE RIMANENZE","sez":"Conto economico","cls":"Economico di reddito","cls3":"Economico di reddito — costo d’esercizio","rt":1,"lt":"B","rn":"","nu":"11","lt2":"","ord":[2,0,11,0]},{"c":"37.12","d":"Materie di consumo c/rimanenze finali","t":"Economico","de":"SE","e":"A","g":"VARIAZIONI DELLE RIMANENZE","sez":"Conto economico","cls":"Economico di reddito","cls3":"Economico di reddito — costo d’esercizio","rt":1,"lt":"B","rn":"","nu":"11","lt2":"","ord":[2,0,11,0]},{"c":"37.13","d":"Merci c/rimanenze finali","t":"Economico","de":"SE","e":"A","g":"VARIAZIONI DELLE RIMANENZE","sez":"Conto economico","cls":"Economico di reddito","cls3":"Economico di reddito — costo d’esercizio","rt":1,"lt":"B","rn":"","nu":"11","lt2":"","ord":[2,0,11,0]},{"c":"38.01","d":"Accantonamento per responsabilità civile E,","t":"Transitorio","de":"SE","e":"D","g":"ACCANTONAMENTI","sez":"Conto economico","cls":"Transitorio","cls3":"Transitorio","rt":0,"lt":"B","rn":"","nu":"12","lt2":"","ord":[2,0,12,0]},{"c":"38.10","d":"Accantonamento per manutenzioni programmate E,","t":"Transitorio","de":"SE","e":"D","g":"ACCANTONAMENTI","sez":"Conto economico","cls":"Transitorio","cls3":"Transitorio","rt":0,"lt":"B","rn":"","nu":"13","lt2":"","ord":[2,0,13,0]},{"c":"38.11","d":"Accantonamento per garanzia prodotti E,","t":"Transitorio","de":"SE","e":"D","g":"ACCANTONAMENTI","sez":"Conto economico","cls":"Transitorio","cls3":"Transitorio","rt":0,"lt":"B","rn":"","nu":"13","lt2":"","ord":[2,0,13,0]},{"c":"39.01","d":"Arrotondamenti passivi","t":"Economico","de":"SE","e":"D","g":"ONERI DIVERSI","sez":"Conto economico","cls":"Economico di reddito","cls3":"Economico di reddito — costo d’esercizio","rt":0,"lt":"B","rn":"","nu":"14","lt2":"","ord":[2,0,14,0]},{"c":"39.02","d":"Oneri fiscali diversi","t":"Economico","de":"SE","e":"D","g":"ONERI DIVERSI","sez":"Conto economico","cls":"Economico di reddito","cls3":"Economico di reddito — costo d’esercizio","rt":0,"lt":"B","rn":"","nu":"14","lt2":"","ord":[2,0,14,0]},{"c":"39.03","d":"Accantonamento per imposte indirette","t":"Economico","de":"SE","e":"D","g":"ONERI DIVERSI","sez":"Conto economico","cls":"Economico di reddito","cls3":"Economico di reddito — costo d’esercizio","rt":0,"lt":"B","rn":"","nu":"14","lt2":"","ord":[2,0,14,0]},{"c":"39.05","d":"Perdite su crediti","t":"Economico","de":"SE","e":"D","g":"ONERI DIVERSI","sez":"Conto economico","cls":"Economico di reddito","cls3":"Economico di reddito — costo d’esercizio","rt":0,"lt":"B","rn":"","nu":"14","lt2":"","ord":[2,0,14,0]},{"c":"39.10","d":"Minusvalenze","t":"Economico","de":"SE","e":"D","g":"ONERI DIVERSI","sez":"Conto economico","cls":"Economico di reddito","cls3":"Economico di reddito — costo d’esercizio","rt":0,"lt":"B","rn":"","nu":"14","lt2":"","ord":[2,0,14,0]},{"c":"39.11","d":"Sopravvenienze passive","t":"Economico","de":"SE","e":"D","g":"ONERI DIVERSI","sez":"Conto economico","cls":"Economico di reddito","cls3":"Economico di reddito — costo d’esercizio","rt":0,"lt":"B","rn":"","nu":"14","lt2":"","ord":[2,0,14,0]},{"c":"39.12","d":"Insussistenze passive","t":"Economico","de":"SE","e":"D","g":"ONERI DIVERSI","sez":"Conto economico","cls":"Economico di reddito","cls3":"Economico di reddito — costo d’esercizio","rt":0,"lt":"B","rn":"","nu":"14","lt2":"","ord":[2,0,14,0]},{"c":"40.01","d":"Proventi da partecipazioni","t":"Economico","de":"SE","e":"A","g":"PROVENTI FINANZIARI","sez":"Conto economico","cls":"Economico di reddito","cls3":"Economico di reddito — ricavo d’esercizio","rt":0,"lt":"C","rn":"","nu":"15","lt2":"","ord":[3,0,15,0]},{"c":"40.02","d":"Plusvalenze da partecipazioni","t":"Economico","de":"SE","e":"A","g":"PROVENTI FINANZIARI","sez":"Conto economico","cls":"Economico di reddito","cls3":"Economico di reddito — ricavo d’esercizio","rt":0,"lt":"C","rn":"","nu":"15","lt2":"","ord":[3,0,15,0]},{"c":"40.03","d":"Interessi attivi da controllate","t":"Economico","de":"SE","e":"A","g":"PROVENTI FINANZIARI","sez":"Conto economico","cls":"Economico di reddito","cls3":"Economico di reddito — ricavo d’esercizio","rt":0,"lt":"C","rn":"","nu":"16","lt2":"a","ord":[3,0,16,10]},{"c":"40.04","d":"Interessi attivi da collegate","t":"Economico","de":"SE","e":"A","g":"PROVENTI FINANZIARI","sez":"Conto economico","cls":"Economico di reddito","cls3":"Economico di reddito — ricavo d’esercizio","rt":0,"lt":"C","rn":"","nu":"16","lt2":"a","ord":[3,0,16,10]},{"c":"40.05","d":"Interessi attivi da controllante","t":"Economico","de":"SE","e":"A","g":"PROVENTI FINANZIARI","sez":"Conto economico","cls":"Economico di reddito","cls3":"Economico di reddito — ricavo d’esercizio","rt":0,"lt":"C","rn":"","nu":"16","lt2":"a","ord":[3,0,16,10]},{"c":"40.20","d":"Interessi su titoli","t":"Economico","de":"SE","e":"A","g":"PROVENTI FINANZIARI","sez":"Conto economico","cls":"Economico di reddito","cls3":"Economico di reddito — ricavo d’esercizio","rt":0,"lt":"C","rn":"","nu":"16","lt2":"c","ord":[3,0,16,30]},{"c":"40.21","d":"Utile su titoli","t":"Economico","de":"SE","e":"A","g":"PROVENTI FINANZIARI","sez":"Conto economico","cls":"Economico di reddito","cls3":"Economico di reddito — ricavo d’esercizio","rt":0,"lt":"C","rn":"","nu":"16","lt2":"c","ord":[3,0,16,30]},{"c":"40.31","d":"Interessi attivi da clienti","t":"Economico","de":"SE","e":"A","g":"PROVENTI FINANZIARI","sez":"Conto economico","cls":"Economico di reddito","cls3":"Economico di reddito — ricavo d’esercizio","rt":0,"lt":"C","rn":"","nu":"16","lt2":"d","ord":[3,0,16,40]},{"c":"40.32","d":"Interessi attivi bancari","t":"Economico","de":"SE","e":"A","g":"PROVENTI FINANZIARI","sez":"Conto economico","cls":"Economico di reddito","cls3":"Economico di reddito — ricavo d’esercizio","rt":0,"lt":"C","rn":"","nu":"16","lt2":"d","ord":[3,0,16,40]},{"c":"40.33","d":"Interessi attivi postali","t":"Economico","de":"SE","e":"A","g":"PROVENTI FINANZIARI","sez":"Conto economico","cls":"Economico di reddito","cls3":"Economico di reddito — ricavo d’esercizio","rt":0,"lt":"C","rn":"","nu":"16","lt2":"d","ord":[3,0,16,40]},{"c":"40.34","d":"Interessi attivi da soci","t":"Economico","de":"SE","e":"A","g":"PROVENTI FINANZIARI","sez":"Conto economico","cls":"Economico di reddito","cls3":"Economico di reddito — ricavo d’esercizio","rt":0,"lt":"C","rn":"","nu":"16","lt2":"d","ord":[3,0,16,40]},{"c":"40.40","d":"Proventi finanziari diversi","t":"Economico","de":"SE","e":"A","g":"PROVENTI FINANZIARI","sez":"Conto economico","cls":"Economico di reddito","cls3":"Economico di reddito — ricavo d’esercizio","rt":0,"lt":"C","rn":"","nu":"16","lt2":"d","ord":[3,0,16,40]},{"c":"41.01","d":"Interessi passivi a fornitori","t":"Economico","de":"SE","e":"D","g":"ONERI FINANZIARI","sez":"Conto economico","cls":"Economico di reddito","cls3":"Economico di reddito — costo d’esercizio","rt":0,"lt":"C","rn":"","nu":"17","lt2":"","ord":[3,0,17,0]},{"c":"41.02","d":"Interessi passivi bancari","t":"Economico","de":"SE","e":"D","g":"ONERI FINANZIARI","sez":"Conto economico","cls":"Economico di reddito","cls3":"Economico di reddito — costo d’esercizio","rt":0,"lt":"C","rn":"","nu":"17","lt2":"","ord":[3,0,17,0]},{"c":"41.03","d":"Sconti passivi bancari","t":"Economico","de":"SE","e":"D","g":"ONERI FINANZIARI","sez":"Conto economico","cls":"Economico di reddito","cls3":"Economico di reddito — costo d’esercizio","rt":0,"lt":"C","rn":"","nu":"17","lt2":"","ord":[3,0,17,0]},{"c":"41.04","d":"Interessi passivi su mutui","t":"Economico","de":"SE","e":"D","g":"ONERI FINANZIARI","sez":"Conto economico","cls":"Economico di reddito","cls3":"Economico di reddito — costo d’esercizio","rt":0,"lt":"C","rn":"","nu":"17","lt2":"","ord":[3,0,17,0]},{"c":"41.10","d":"Interessi su obbligazioni","t":"Economico","de":"SE","e":"D","g":"ONERI FINANZIARI","sez":"Conto economico","cls":"Economico di reddito","cls3":"Economico di reddito — costo d’esercizio","rt":0,"lt":"C","rn":"","nu":"17","lt2":"","ord":[3,0,17,0]},{"c":"41.11","d":"Minusvalenze da partecipazioni","t":"Economico","de":"SE","e":"D","g":"ONERI FINANZIARI","sez":"Conto economico","cls":"Economico di reddito","cls3":"Economico di reddito — costo d’esercizio","rt":0,"lt":"C","rn":"","nu":"17","lt2":"","ord":[3,0,17,0]},{"c":"41.30","d":"Interessi passivi a controllate","t":"Economico","de":"SE","e":"D","g":"ONERI FINANZIARI","sez":"Conto economico","cls":"Economico di reddito","cls3":"Economico di reddito — costo d’esercizio","rt":0,"lt":"C","rn":"","nu":"17","lt2":"","ord":[3,0,17,0]},{"c":"41.31","d":"Interessi passivi a collegate","t":"Economico","de":"SE","e":"D","g":"ONERI FINANZIARI","sez":"Conto economico","cls":"Economico di reddito","cls3":"Economico di reddito — costo d’esercizio","rt":0,"lt":"C","rn":"","nu":"17","lt2":"","ord":[3,0,17,0]},{"c":"41.32","d":"Interessi passivi a controllante","t":"Economico","de":"SE","e":"D","g":"ONERI FINANZIARI","sez":"Conto economico","cls":"Economico di reddito","cls3":"Economico di reddito — costo d’esercizio","rt":0,"lt":"C","rn":"","nu":"17","lt2":"","ord":[3,0,17,0]},{"c":"41.40","d":"Perdita su titoli","t":"Economico","de":"SE","e":"D","g":"ONERI FINANZIARI","sez":"Conto economico","cls":"Economico di reddito","cls3":"Economico di reddito — costo d’esercizio","rt":0,"lt":"C","rn":"","nu":"17","lt2":"","ord":[3,0,17,0]},{"c":"41.50","d":"Oneri finanziari diversi","t":"Economico","de":"SE","e":"D","g":"ONERI FINANZIARI","sez":"Conto economico","cls":"Economico di reddito","cls3":"Economico di reddito — costo d’esercizio","rt":0,"lt":"C","rn":"","nu":"17","lt2":"","ord":[3,0,17,0]},{"c":"50.01","d":"Rivalutazione partecipazioni E, ricav","t":"Economico","de":"SE","e":"A","g":"RIVALUTAZIONI DI ATTIVITÀ FINANZIARIE","sez":"Conto economico","cls":"Economico di reddito","cls3":"Economico di reddito — ricavo d’esercizio","rt":0,"lt":"D","rn":"","nu":"18","lt2":"a","ord":[4,0,18,1]},{"c":"50.02","d":"Rivalutazione titoli E, ricav","t":"Economico","de":"SE","e":"A","g":"RIVALUTAZIONI DI ATTIVITÀ FINANZIARIE","sez":"Conto economico","cls":"Economico di reddito","cls3":"Economico di reddito — ricavo d’esercizio","rt":0,"lt":"D","rn":"","nu":"18","lt2":"c","ord":[4,0,18,3]},{"c":"51.10","d":"Svalutazione partecipazioni","t":"Economico","de":"SE","e":"D","g":"SVALUTAZIONI DI ATTIVITÀ FINANZIARIE","sez":"Conto economico","cls":"Economico di reddito","cls3":"Economico di reddito — costo d’esercizio","rt":0,"lt":"D","rn":"","nu":"19","lt2":"a","ord":[4,0,19,1]},{"c":"51.11","d":"Svalutazione titoli","t":"Economico","de":"SE","e":"D","g":"SVALUTAZIONI DI ATTIVITÀ FINANZIARIE","sez":"Conto economico","cls":"Economico di reddito","cls3":"Economico di reddito — costo d’esercizio","rt":0,"lt":"D","rn":"","nu":"19","lt2":"c","ord":[4,0,19,3]},{"c":"60.01","d":"Imposte dell’esercizio","t":"Economico","de":"SE","e":"D","g":"IMPOSTE DELL’ESERCIZIO","sez":"Conto economico","cls":"Economico di reddito","cls3":"Economico di reddito — costo d’esercizio","rt":0,"lt":"","rn":"","nu":"20","lt2":"","ord":[5,0,20,0]},{"c":"60.02","d":"Accantonamento per imposte dirette","t":"Economico","de":"SE","e":"D","g":"IMPOSTE DELL’ESERCIZIO","sez":"Conto economico","cls":"Economico di reddito","cls3":"Economico di reddito — costo d’esercizio","rt":0,"lt":"","rn":"","nu":"20","lt2":"","ord":[5,0,20,0]},{"c":"90.01","d":"Conto di risultato economico","t":"Transitorio","de":"—","e":"D/A","g":"CONTI DI RISULTATO","sez":"Non iscritto in bilancio","cls":"Transitorio","cls3":"Transitorio","rt":0,"lt":"","rn":"","nu":"","lt2":"","ord":[99,0,0,0]},{"c":"90.02","d":"Gestione titoli","t":"Transitorio","de":"—","e":"D/A","g":"CONTI DI RISULTATO","sez":"Non iscritto in bilancio","cls":"Transitorio","cls3":"Transitorio","rt":0,"lt":"","rn":"","nu":"","lt2":"","ord":[99,0,0,0]}], SCHEMA={"Stato patrimoniale — Attivo":[{"lv":"M","lt":"A","rn":"","nu":"","lt2":"","t":"Crediti verso soci per versamenti ancora dovuti","k":"A|||"},{"lv":"V","lt":"A","rn":"","nu":"","lt2":"","t":"con separata indicazione della parte già richiamata","k":"A|||"},{"lv":"M","lt":"B","rn":"","nu":"","lt2":"","t":"Immobilizzazioni","k":"B|||"},{"lv":"S","lt":"B","rn":"I","nu":"","lt2":"","t":"Immobilizzazioni immateriali","k":"B|I||"},{"lv":"V","lt":"B","rn":"I","nu":"1","lt2":"","t":"costi di impianto e di ampliamento","k":"B|I|1|"},{"lv":"V","lt":"B","rn":"I","nu":"2","lt2":"","t":"costi di sviluppo","k":"B|I|2|"},{"lv":"V","lt":"B","rn":"I","nu":"3","lt2":"","t":"diritti di brevetto industriale e diritti di utilizzazione delle opere dell’ingegno","k":"B|I|3|"},{"lv":"V","lt":"B","rn":"I","nu":"4","lt2":"","t":"concessioni, licenze, marchi e diritti simili","k":"B|I|4|"},{"lv":"V","lt":"B","rn":"I","nu":"5","lt2":"","t":"avviamento","k":"B|I|5|"},{"lv":"V","lt":"B","rn":"I","nu":"6","lt2":"","t":"immobilizzazioni in corso e acconti","k":"B|I|6|"},{"lv":"V","lt":"B","rn":"I","nu":"7","lt2":"","t":"altre","k":"B|I|7|"},{"lv":"S","lt":"B","rn":"II","nu":"","lt2":"","t":"Immobilizzazioni materiali","k":"B|II||"},{"lv":"V","lt":"B","rn":"II","nu":"1","lt2":"","t":"terreni e fabbricati","k":"B|II|1|"},{"lv":"V","lt":"B","rn":"II","nu":"2","lt2":"","t":"impianti e macchinario","k":"B|II|2|"},{"lv":"V","lt":"B","rn":"II","nu":"3","lt2":"","t":"attrezzature industriali e commerciali","k":"B|II|3|"},{"lv":"V","lt":"B","rn":"II","nu":"4","lt2":"","t":"altri beni","k":"B|II|4|"},{"lv":"V","lt":"B","rn":"II","nu":"5","lt2":"","t":"immobilizzazioni in corso e acconti","k":"B|II|5|"},{"lv":"S","lt":"B","rn":"III","nu":"","lt2":"","t":"Immobilizzazioni finanziarie","k":"B|III||"},{"lv":"V","lt":"B","rn":"III","nu":"1","lt2":"a","t":"partecipazioni in imprese controllate","k":"B|III|1|a"},{"lv":"V","lt":"B","rn":"III","nu":"1","lt2":"b","t":"partecipazioni in imprese collegate","k":"B|III|1|b"},{"lv":"V","lt":"B","rn":"III","nu":"1","lt2":"c","t":"partecipazioni in imprese controllanti","k":"B|III|1|c"},{"lv":"V","lt":"B","rn":"III","nu":"1","lt2":"d","t":"partecipazioni in imprese sottoposte al controllo delle controllanti","k":"B|III|1|d"},{"lv":"V","lt":"B","rn":"III","nu":"1","lt2":"d-bis","t":"partecipazioni in altre imprese","k":"B|III|1|d-bis"},{"lv":"V","lt":"B","rn":"III","nu":"2","lt2":"a","t":"crediti verso imprese controllate","k":"B|III|2|a"},{"lv":"V","lt":"B","rn":"III","nu":"2","lt2":"b","t":"crediti verso imprese collegate","k":"B|III|2|b"},{"lv":"V","lt":"B","rn":"III","nu":"2","lt2":"c","t":"crediti verso imprese controllanti","k":"B|III|2|c"},{"lv":"V","lt":"B","rn":"III","nu":"2","lt2":"d","t":"crediti verso imprese sottoposte al controllo delle controllanti","k":"B|III|2|d"},{"lv":"V","lt":"B","rn":"III","nu":"2","lt2":"d-bis","t":"crediti verso altri","k":"B|III|2|d-bis"},{"lv":"V","lt":"B","rn":"III","nu":"3","lt2":"","t":"altri titoli","k":"B|III|3|"},{"lv":"V","lt":"B","rn":"III","nu":"4","lt2":"","t":"strumenti finanziari derivati attivi","k":"B|III|4|"},{"lv":"M","lt":"C","rn":"","nu":"","lt2":"","t":"Attivo circolante","k":"C|||"},{"lv":"S","lt":"C","rn":"I","nu":"","lt2":"","t":"Rimanenze","k":"C|I||"},{"lv":"V","lt":"C","rn":"I","nu":"1","lt2":"","t":"materie prime, sussidiarie e di consumo","k":"C|I|1|"},{"lv":"V","lt":"C","rn":"I","nu":"2","lt2":"","t":"prodotti in corso di lavorazione e semilavorati","k":"C|I|2|"},{"lv":"V","lt":"C","rn":"I","nu":"3","lt2":"","t":"lavori in corso su ordinazione","k":"C|I|3|"},{"lv":"V","lt":"C","rn":"I","nu":"4","lt2":"","t":"prodotti finiti e merci","k":"C|I|4|"},{"lv":"V","lt":"C","rn":"I","nu":"5","lt2":"","t":"acconti","k":"C|I|5|"},{"lv":"S","lt":"C","rn":"II","nu":"","lt2":"","t":"Crediti (con separata indicazione degli importi esigibili oltre l’esercizio successivo)","k":"C|II||"},{"lv":"V","lt":"C","rn":"II","nu":"1","lt2":"","t":"crediti verso clienti","k":"C|II|1|"},{"lv":"V","lt":"C","rn":"II","nu":"2","lt2":"","t":"crediti verso imprese controllate","k":"C|II|2|"},{"lv":"V","lt":"C","rn":"II","nu":"3","lt2":"","t":"crediti verso imprese collegate","k":"C|II|3|"},{"lv":"V","lt":"C","rn":"II","nu":"4","lt2":"","t":"crediti verso controllanti","k":"C|II|4|"},{"lv":"V","lt":"C","rn":"II","nu":"5","lt2":"","t":"crediti verso imprese sottoposte al controllo delle controllanti","k":"C|II|5|"},{"lv":"V","lt":"C","rn":"II","nu":"5-bis","lt2":"","t":"crediti tributari","k":"C|II|5-bis|"},{"lv":"V","lt":"C","rn":"II","nu":"5-ter","lt2":"","t":"imposte anticipate","k":"C|II|5-ter|"},{"lv":"V","lt":"C","rn":"II","nu":"5-quater","lt2":"","t":"crediti verso altri","k":"C|II|5-quater|"},{"lv":"S","lt":"C","rn":"III","nu":"","lt2":"","t":"Attività finanziarie che non costituiscono immobilizzazioni","k":"C|III||"},{"lv":"V","lt":"C","rn":"III","nu":"1","lt2":"","t":"partecipazioni in imprese controllate","k":"C|III|1|"},{"lv":"V","lt":"C","rn":"III","nu":"2","lt2":"","t":"partecipazioni in imprese collegate","k":"C|III|2|"},{"lv":"V","lt":"C","rn":"III","nu":"3","lt2":"","t":"partecipazioni in imprese controllanti","k":"C|III|3|"},{"lv":"V","lt":"C","rn":"III","nu":"3-bis","lt2":"","t":"partecipazioni in imprese sottoposte al controllo delle controllanti","k":"C|III|3-bis|"},{"lv":"V","lt":"C","rn":"III","nu":"4","lt2":"","t":"altre partecipazioni","k":"C|III|4|"},{"lv":"V","lt":"C","rn":"III","nu":"5","lt2":"","t":"strumenti finanziari derivati attivi","k":"C|III|5|"},{"lv":"V","lt":"C","rn":"III","nu":"6","lt2":"","t":"altri titoli","k":"C|III|6|"},{"lv":"S","lt":"C","rn":"IV","nu":"","lt2":"","t":"Disponibilità liquide","k":"C|IV||"},{"lv":"V","lt":"C","rn":"IV","nu":"1","lt2":"","t":"depositi bancari e postali","k":"C|IV|1|"},{"lv":"V","lt":"C","rn":"IV","nu":"2","lt2":"","t":"assegni","k":"C|IV|2|"},{"lv":"V","lt":"C","rn":"IV","nu":"3","lt2":"","t":"danaro e valori in cassa","k":"C|IV|3|"},{"lv":"M","lt":"D","rn":"","nu":"","lt2":"","t":"Ratei e risconti","k":"D|||"},{"lv":"V","lt":"D","rn":"","nu":"","lt2":"","t":"ratei e risconti attivi","k":"D|||"}],"Stato patrimoniale — Passivo":[{"lv":"M","lt":"A","rn":"","nu":"","lt2":"","t":"Patrimonio netto","k":"A|||"},{"lv":"V","lt":"A","rn":"I","nu":"","lt2":"","t":"Capitale","k":"A|I||"},{"lv":"V","lt":"A","rn":"II","nu":"","lt2":"","t":"Riserva da soprapprezzo delle azioni","k":"A|II||"},{"lv":"V","lt":"A","rn":"III","nu":"","lt2":"","t":"Riserve di rivalutazione","k":"A|III||"},{"lv":"V","lt":"A","rn":"IV","nu":"","lt2":"","t":"Riserva legale","k":"A|IV||"},{"lv":"V","lt":"A","rn":"V","nu":"","lt2":"","t":"Riserve statutarie","k":"A|V||"},{"lv":"V","lt":"A","rn":"VI","nu":"","lt2":"","t":"Altre riserve, distintamente indicate","k":"A|VI||"},{"lv":"V","lt":"A","rn":"VII","nu":"","lt2":"","t":"Riserva per operazioni di copertura dei flussi finanziari attesi","k":"A|VII||"},{"lv":"V","lt":"A","rn":"VIII","nu":"","lt2":"","t":"Utili (perdite) portati a nuovo","k":"A|VIII||"},{"lv":"V","lt":"A","rn":"IX","nu":"","lt2":"","t":"Utile (perdita) dell’esercizio","k":"A|IX||"},{"lv":"V","lt":"A","rn":"X","nu":"","lt2":"","t":"Riserva negativa per azioni proprie in portafoglio","k":"A|X||"},{"lv":"M","lt":"B","rn":"","nu":"","lt2":"","t":"Fondi per rischi e oneri","k":"B|||"},{"lv":"V","lt":"B","rn":"","nu":"1","lt2":"","t":"per trattamento di quiescenza e obblighi simili","k":"B||1|"},{"lv":"V","lt":"B","rn":"","nu":"2","lt2":"","t":"per imposte, anche differite","k":"B||2|"},{"lv":"V","lt":"B","rn":"","nu":"3","lt2":"","t":"strumenti finanziari derivati passivi","k":"B||3|"},{"lv":"V","lt":"B","rn":"","nu":"4","lt2":"","t":"altri","k":"B||4|"},{"lv":"M","lt":"C","rn":"","nu":"","lt2":"","t":"Trattamento di fine rapporto di lavoro subordinato","k":"C|||"},{"lv":"V","lt":"C","rn":"","nu":"","lt2":"","t":"trattamento di fine rapporto di lavoro subordinato","k":"C|||"},{"lv":"M","lt":"D","rn":"","nu":"","lt2":"","t":"Debiti (con separata indicazione degli importi esigibili oltre l’esercizio successivo)","k":"D|||"},{"lv":"V","lt":"D","rn":"","nu":"1","lt2":"","t":"obbligazioni","k":"D||1|"},{"lv":"V","lt":"D","rn":"","nu":"2","lt2":"","t":"obbligazioni convertibili","k":"D||2|"},{"lv":"V","lt":"D","rn":"","nu":"3","lt2":"","t":"debiti verso soci per finanziamenti","k":"D||3|"},{"lv":"V","lt":"D","rn":"","nu":"4","lt2":"","t":"debiti verso banche","k":"D||4|"},{"lv":"V","lt":"D","rn":"","nu":"5","lt2":"","t":"debiti verso altri finanziatori","k":"D||5|"},{"lv":"V","lt":"D","rn":"","nu":"6","lt2":"","t":"acconti","k":"D||6|"},{"lv":"V","lt":"D","rn":"","nu":"7","lt2":"","t":"debiti verso fornitori","k":"D||7|"},{"lv":"V","lt":"D","rn":"","nu":"8","lt2":"","t":"debiti rappresentati da titoli di credito","k":"D||8|"},{"lv":"V","lt":"D","rn":"","nu":"9","lt2":"","t":"debiti verso imprese controllate","k":"D||9|"},{"lv":"V","lt":"D","rn":"","nu":"10","lt2":"","t":"debiti verso imprese collegate","k":"D||10|"},{"lv":"V","lt":"D","rn":"","nu":"11","lt2":"","t":"debiti verso controllanti","k":"D||11|"},{"lv":"V","lt":"D","rn":"","nu":"11-bis","lt2":"","t":"debiti verso imprese sottoposte al controllo delle controllanti","k":"D||11-bis|"},{"lv":"V","lt":"D","rn":"","nu":"12","lt2":"","t":"debiti tributari","k":"D||12|"},{"lv":"V","lt":"D","rn":"","nu":"13","lt2":"","t":"debiti verso istituti di previdenza e di sicurezza sociale","k":"D||13|"},{"lv":"V","lt":"D","rn":"","nu":"14","lt2":"","t":"altri debiti","k":"D||14|"},{"lv":"M","lt":"E","rn":"","nu":"","lt2":"","t":"Ratei e risconti","k":"E|||"},{"lv":"V","lt":"E","rn":"","nu":"","lt2":"","t":"ratei e risconti passivi","k":"E|||"}],"Conto economico":[{"lv":"M","lt":"A","rn":"","nu":"","lt2":"","t":"Valore della produzione","k":"A|||"},{"lv":"V","lt":"A","rn":"","nu":"1","lt2":"","t":"ricavi delle vendite e delle prestazioni","k":"A||1|"},{"lv":"V","lt":"A","rn":"","nu":"2","lt2":"","t":"variazioni delle rimanenze di prodotti in corso di lavorazione, semilavorati e finiti","k":"A||2|"},{"lv":"V","lt":"A","rn":"","nu":"3","lt2":"","t":"variazioni dei lavori in corso su ordinazione","k":"A||3|"},{"lv":"V","lt":"A","rn":"","nu":"4","lt2":"","t":"incrementi di immobilizzazioni per lavori interni","k":"A||4|"},{"lv":"V","lt":"A","rn":"","nu":"5","lt2":"","t":"altri ricavi e proventi, con separata indicazione dei contributi in conto esercizio","k":"A||5|"},{"lv":"M","lt":"B","rn":"","nu":"","lt2":"","t":"Costi della produzione","k":"B|||"},{"lv":"V","lt":"B","rn":"","nu":"6","lt2":"","t":"per materie prime, sussidiarie, di consumo e di merci","k":"B||6|"},{"lv":"V","lt":"B","rn":"","nu":"7","lt2":"","t":"per servizi","k":"B||7|"},{"lv":"V","lt":"B","rn":"","nu":"8","lt2":"","t":"per godimento di beni di terzi","k":"B||8|"},{"lv":"V","lt":"B","rn":"","nu":"9","lt2":"a","t":"per il personale: salari e stipendi","k":"B||9|a"},{"lv":"V","lt":"B","rn":"","nu":"9","lt2":"b","t":"per il personale: oneri sociali","k":"B||9|b"},{"lv":"V","lt":"B","rn":"","nu":"9","lt2":"c","t":"per il personale: trattamento di fine rapporto","k":"B||9|c"},{"lv":"V","lt":"B","rn":"","nu":"9","lt2":"d","t":"per il personale: trattamento di quiescenza e simili","k":"B||9|d"},{"lv":"V","lt":"B","rn":"","nu":"9","lt2":"e","t":"per il personale: altri costi","k":"B||9|e"},{"lv":"V","lt":"B","rn":"","nu":"10","lt2":"a","t":"ammortamento delle immobilizzazioni immateriali","k":"B||10|a"},{"lv":"V","lt":"B","rn":"","nu":"10","lt2":"b","t":"ammortamento delle immobilizzazioni materiali","k":"B||10|b"},{"lv":"V","lt":"B","rn":"","nu":"10","lt2":"c","t":"altre svalutazioni delle immobilizzazioni","k":"B||10|c"},{"lv":"V","lt":"B","rn":"","nu":"10","lt2":"d","t":"svalutazione dei crediti compresi nell’attivo circolante e delle disponibilità liquide","k":"B||10|d"},{"lv":"V","lt":"B","rn":"","nu":"11","lt2":"","t":"variazioni delle rimanenze di materie prime, sussidiarie, di consumo e merci","k":"B||11|"},{"lv":"V","lt":"B","rn":"","nu":"12","lt2":"","t":"accantonamenti per rischi","k":"B||12|"},{"lv":"V","lt":"B","rn":"","nu":"13","lt2":"","t":"altri accantonamenti","k":"B||13|"},{"lv":"V","lt":"B","rn":"","nu":"14","lt2":"","t":"oneri diversi di gestione","k":"B||14|"},{"lv":"M","lt":"C","rn":"","nu":"","lt2":"","t":"Proventi e oneri finanziari","k":"C|||"},{"lv":"V","lt":"C","rn":"","nu":"15","lt2":"","t":"proventi da partecipazioni, con separata indicazione di quelli relativi a imprese controllate, collegate e controllanti","k":"C||15|"},{"lv":"V","lt":"C","rn":"","nu":"16","lt2":"a","t":"altri proventi finanziari: da crediti iscritti nelle immobilizzazioni","k":"C||16|a"},{"lv":"V","lt":"C","rn":"","nu":"16","lt2":"b","t":"altri proventi finanziari: da titoli iscritti nelle immobilizzazioni che non costituiscono partecipazioni","k":"C||16|b"},{"lv":"V","lt":"C","rn":"","nu":"16","lt2":"c","t":"altri proventi finanziari: da titoli iscritti nell’attivo circolante che non costituiscono partecipazioni","k":"C||16|c"},{"lv":"V","lt":"C","rn":"","nu":"16","lt2":"d","t":"altri proventi finanziari: proventi diversi dai precedenti","k":"C||16|d"},{"lv":"V","lt":"C","rn":"","nu":"17","lt2":"","t":"interessi e altri oneri finanziari, con separata indicazione di quelli verso imprese controllate, collegate e controllanti","k":"C||17|"},{"lv":"V","lt":"C","rn":"","nu":"17-bis","lt2":"","t":"utili e perdite su cambi","k":"C||17-bis|"},{"lv":"M","lt":"D","rn":"","nu":"","lt2":"","t":"Rettifiche di valore di attività e passività finanziarie","k":"D|||"},{"lv":"V","lt":"D","rn":"","nu":"18","lt2":"a","t":"rivalutazioni di partecipazioni","k":"D||18|a"},{"lv":"V","lt":"D","rn":"","nu":"18","lt2":"b","t":"rivalutazioni di immobilizzazioni finanziarie che non costituiscono partecipazioni","k":"D||18|b"},{"lv":"V","lt":"D","rn":"","nu":"18","lt2":"c","t":"rivalutazioni di titoli iscritti nell’attivo circolante che non costituiscono partecipazioni","k":"D||18|c"},{"lv":"V","lt":"D","rn":"","nu":"18","lt2":"d","t":"rivalutazioni di strumenti finanziari derivati","k":"D||18|d"},{"lv":"V","lt":"D","rn":"","nu":"19","lt2":"a","t":"svalutazioni di partecipazioni","k":"D||19|a"},{"lv":"V","lt":"D","rn":"","nu":"19","lt2":"b","t":"svalutazioni di immobilizzazioni finanziarie che non costituiscono partecipazioni","k":"D||19|b"},{"lv":"V","lt":"D","rn":"","nu":"19","lt2":"c","t":"svalutazioni di titoli iscritti nell’attivo circolante che non costituiscono partecipazioni","k":"D||19|c"},{"lv":"V","lt":"D","rn":"","nu":"19","lt2":"d","t":"svalutazioni di strumenti finanziari derivati","k":"D||19|d"},{"lv":"M","lt":"","rn":"","nu":"","lt2":"","t":"Risultato dell’esercizio","k":"|||"},{"lv":"V","lt":"","rn":"","nu":"20","lt2":"","t":"imposte sul reddito dell’esercizio, correnti, differite e anticipate","k":"||20|"},{"lv":"V","lt":"","rn":"","nu":"21","lt2":"","t":"utile (perdita) dell’esercizio","k":"||21|"}]};
+const MC={}; CONTI.forEach(c=>MC[c.c]=c);
+const norm=s=>(s||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[\u2019']/g,"'");
+CONTI.forEach(c=>c._k=norm(c.c+' '+c.d+' '+c.g));
+const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
+const eur=n=>(Math.round((n||0)*100)/100).toLocaleString('it-IT',{minimumFractionDigits:2,maximumFractionDigits:2});
+const num=v=>{const n=parseFloat(String(v).replace(',','.'));return isFinite(n)?n:0;};
+const R2=n=>Math.round(n*100)/100;
+const CRE='90.01', UTI='10.40', PER='10.41', BCH='18.02';
+const RIEP={'18.20':['08.01','13.20'],'18.11':['06.09','15.06'],'18.10':['06.03','15.03']};
+const IVA=['06.01','06.02','15.01'];
+const ESCL=['90.01','90.02','18.01','18.02'];
+
+/* ---------- stato ---------- */
+const KEY='gest-spa-v2';
+let ST={ident:{nome:'',cogn:'',cla:''},es:{titolo:'',consegna:'',data:'31/12',fase:'G',iniziali:[]},articoli:[]};
+try{const r=localStorage.getItem(KEY);if(r)ST=Object.assign(ST,JSON.parse(r));}catch(e){}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(ST));}catch(e){}}
+function etichetta(){
+  const i=ST.ident, p=[ST.es.titolo,[i.nome,i.cogn].filter(Boolean).join(' '),i.cla].filter(Boolean);
+  $('#az-lab').textContent=p.join(' \u00b7 ');
+}
+
+/* ---------- navigazione ---------- */
+const RENDER={ese:renderEse,gio:renderGiornale,mas:renderMastri,sit:renderSituazione,chi:renderChiusura,bil:renderBilancio};
+$$('nav button').forEach(b=>b.onclick=()=>{
+  $$('nav button').forEach(x=>x.classList.toggle('on',x===b));
+  ['ese','reg','gio','mas','sit','chi','bil','stp'].forEach(id=>$('#'+id).classList.toggle('hide',id!==b.dataset.t));
+  if(RENDER[b.dataset.t])RENDER[b.dataset.t]();
+  window.scrollTo(0,0);
+});
+
+/* ---------- variazione ---------- */
+function variazione(cod,sez){const c=MC[cod];if(!c)return'';
+  if(c.t==='Finanziario')return sez==='D'?'VFA':'VFP';
+  if(c.t==='Economico')return sez==='D'?'VEN':'VEP';return'';}
+
+/* ---------- selettore di conto ---------- */
+function attaccaPick(inp,onPick){
+  const box=inp.parentElement.querySelector('.lst');
+  const apri=()=>{
+    const q=norm(inp.value.trim()),w=q?q.split(/\s+/):[];
+    const r=CONTI.filter(c=>w.every(k=>c._k.includes(k))).slice(0,40);
+    box.innerHTML=r.length?r.map(c=>`<div class="it" data-c="${c.c}"><b>${c.c}</b>${c.d}<span>${c.g} \u00b7 ${c.cls3}</span></div>`).join('')
+      :'<div class="it">Nessun conto trovato</div>';
+    box.classList.remove('hide');
+    box.querySelectorAll('[data-c]').forEach(it=>it.onmousedown=e=>{
+      e.preventDefault();box.classList.add('hide');onPick(it.dataset.c);});
+  };
+  inp.oninput=apri;inp.onfocus=apri;
+  inp.onblur=()=>setTimeout(()=>box.classList.add('hide'),160);
+}
+function rigaNode(r,onChange,onDel){
+  const d=document.createElement('div');d.className='riga';
+  d.innerHTML=`<div class="pick"><input class="cc" placeholder="Conto\u2026" autocomplete="off"><button type="button" class="lens" title="Sfoglia il piano dei conti" aria-label="Sfoglia il piano dei conti"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><line x1="16.5" y1="16.5" x2="21" y2="21"/></svg></button><div class="lst hide"></div></div>
+    <input class="dd num" inputmode="decimal" placeholder="0,00">
+    <input class="aa num" inputmode="decimal" placeholder="0,00">
+    <button class="x" title="togli">\u00d7</button>
+    <div class="nat"></div>`;
+  const inp=d.querySelector('.cc'),dd=d.querySelector('.dd'),aa=d.querySelector('.aa'),nat=d.querySelector('.nat');
+  const agg=()=>{const c=MC[r.c];
+    inp.value=c?c.d:'';
+    const sz=num(r.d)?'D':num(r.a)?'A':'', v=c&&sz?variazione(r.c,sz):'';
+    nat.innerHTML=c?`${c.c} \u2014 ${c.d} \u00b7 ${c.cls3}${c.rt?' \u00b7 rettificativo':''}${v?` &nbsp;<span class="v ${v}">${v}</span>`:''}`:'';};
+  attaccaPick(inp,cod=>{r.c=cod;agg();onChange();});
+  d.querySelector('.lens').onclick=()=>apriPicker(cod=>{r.c=cod;agg();onChange();});
+  dd.value=r.d||'';aa.value=r.a||'';
+  dd.oninput=()=>{r.d=dd.value;if(num(dd.value)){r.a='';aa.value='';}agg();onChange();};
+  aa.oninput=()=>{r.a=aa.value;if(num(aa.value)){r.d='';dd.value='';}agg();onChange();};
+  d.querySelector('.x').onclick=onDel;
+  agg();return d;
+}
+
+/* ---------- sfoglia il piano dei conti ---------- */
+function apriPicker(onPick){
+  const o=$('#picker'),q=$('#pk-q');
+  const voce=c=>`<div class="pki" data-c="${c.c}"><b>${c.c}</b>${c.d}<span>${c.cls3}</span></div>`;
+  const chiudi=()=>{o.classList.add('hide');document.body.style.overflow='';};
+  const disegna=()=>{
+    const t=norm(q.value.trim()),w=t?t.split(/\s+/):[];
+    if(w.length){
+      const r=CONTI.filter(c=>w.every(k=>c._k.includes(k)));
+      $('#pk-list').innerHTML=r.length?r.slice(0,150).map(voce).join(''):'<p class="muted" style="padding:10px 2px">Nessun conto trovato.</p>';
+    } else {
+      const per={};CONTI.forEach(c=>(per[c.g]=per[c.g]||[]).push(c));
+      $('#pk-list').innerHTML=Object.keys(per).map(g=>`<details class="pkg"><summary>${g}<span>${per[g].length}</span></summary>${per[g].map(voce).join('')}</details>`).join('');
+    }
+    $$('#pk-list [data-c]').forEach(el=>el.onclick=()=>{chiudi();onPick(el.dataset.c);});
+  };
+  q.value='';q.oninput=disegna;$('#pk-x').onclick=chiudi;o.onclick=e=>{if(e.target===o)chiudi();};
+  o.classList.remove('hide');document.body.style.overflow='hidden';disegna();setTimeout(()=>q.focus(),60);
+}
+
+/* ---------- comporre l'articolo ---------- */
+const vuota=()=>({c:'',d:'',a:''});
+let bozza=[vuota(),vuota()];
+function totBozza(){return[bozza.reduce((s,r)=>s+num(r.d),0),bozza.reduce((s,r)=>s+num(r.a),0)];}
+function aggTot(){const[td,ta]=totBozza();$('#t-d').textContent=eur(td);$('#t-a').textContent=eur(ta);}
+function renderRighe(){
+  const box=$('#righe');box.innerHTML='';
+  bozza.forEach((r,i)=>box.appendChild(rigaNode(r,aggTot,()=>{if(bozza.length>1){bozza.splice(i,1);renderRighe();}})));
+  aggTot();
+}
+$('#add-riga').onclick=()=>{bozza.push(vuota());renderRighe();};
+$('#pulisci').onclick=()=>{bozza=[vuota(),vuota()];$('#r-desc').value='';$('#check').innerHTML='';renderRighe();};
+
+let inModifica=null;
+function esciModifica(){inModifica=null;$('#salva').textContent='Registra l\u2019articolo';$('#annulla-mod').classList.add('hide');}
+function invalidaChiusura(){
+  if(!(haFase('R')||haFase('E')||haFase('C')))return true;
+  if(!confirm('Hai gi\u00e0 eseguito riepilogo, epilogo o chiusura. Cambiando le scritture i saldi cambiano: quelle scritture automatiche verranno annullate e dovrai rieseguirle. Procedere?'))return false;
+  ST.articoli=ST.articoli.filter(a=>!['R','E','C'].includes(a.fase));return true;
+}
+$('#annulla-mod').onclick=()=>{esciModifica();bozza=[vuota(),vuota()];$('#r-desc').value='';$('#r-data').value='';$('#check').innerHTML='';renderRighe();};
+$('#salva').onclick=()=>{
+  if(!$('#r-data').value.trim()){alert('Manca la data dell\u2019operazione.');$('#r-data').focus();return;}
+  if(chiaveData($('#r-data').value)===null){alert('La data non \u00e8 valida. Scrivila come giorno/mese, per esempio 15/03.');$('#r-data').focus();return;}
+  const piene=bozza.filter(r=>r.c&&(num(r.d)||num(r.a)));
+  const[td,ta]=totBozza(),diff=R2(td-ta),m=[];
+  if(bozza.some(r=>!r.c&&(num(r.d)||num(r.a)))) m.push(['no','C\u2019\u00e8 un importo senza conto: scegli il conto oppure togli la riga.']);
+  if(piene.length<2) m.push(['no','Un articolo ha bisogno di almeno due conti: ogni valore si registra due volte, in sezioni opposte.']);
+  const dupl=piene.map(r=>r.c).filter((v,i,a)=>a.indexOf(v)!==i);
+  if(dupl.length) m.push(['warn','Lo stesso conto compare pi\u00f9 volte: '+[...new Set(dupl)].map(c=>MC[c].d).join(', ')+'.']);
+  if(diff!==0) m.push(['no','I totali non coincidono: Dare '+eur(td)+' contro Avere '+eur(ta)+'. Differenza di '+eur(Math.abs(diff))+' \u20ac.']);
+  if(m.some(x=>x[0]==='no')){
+    $('#check').innerHTML=m.map(([k,t])=>`<div class="msg ${k}">${t}</div>`).join('');
+    alert(m.filter(x=>x[0]==='no').map(x=>x[1].replace(/<[^>]+>/g,'')).join('\n\n'));
+    return;}
+  const fin=piene.some(r=>MC[r.c].t==='Finanziario'),eco=piene.some(r=>MC[r.c].t==='Economico');
+  const tipo=fin&&!eco?'permutazione finanziaria':eco&&!fin?'permutazione economica':'modificazione';
+  piene.forEach(r=>{const c=MC[r.c];if(c.e==='D/A'||c.rt)return;
+    if(c.e==='D'&&num(r.a))m.push(['warn','<b>'+c.d+'</b> ha normalmente eccedenza Dare: in Avere lo stai riducendo o stornando.']);
+    if(c.e==='A'&&num(r.d))m.push(['warn','<b>'+c.d+'</b> ha normalmente eccedenza Avere: in Dare lo stai riducendo o stornando.']);});
+  if(!invalidaChiusura())return;
+  const art={id:inModifica!==null?ST.articoli[inModifica].id:Date.now(),fase:$('#r-fase').value,data:$('#r-data').value.trim(),desc:$('#r-desc').value.trim(),
+    righe:[...piene.filter(r=>num(r.d)),...piene.filter(r=>!num(r.d))].map(r=>({c:r.c,d:num(r.d),a:num(r.a)}))};
+  const eraModifica=inModifica!==null;
+  if(eraModifica){const pos=ST.articoli.findIndex(a=>a.id===art.id);if(pos>=0)ST.articoli[pos]=art;else ST.articoli.push(art);}
+  else ST.articoli.push(art);
+  esciModifica();
+  save();bozza=[vuota(),vuota()];$('#r-desc').value='';renderRighe();
+  $('#check').innerHTML=`<div class="msg ok">Articolo ${eraModifica?'modificato':'registrato'}. \u00c8 una <b>${tipo}</b>.</div>`+
+    m.filter(x=>x[0]==='warn').map(([k,t])=>`<div class="msg warn">${t}</div>`).join('');
+};
+
+/* ---------- saldi ---------- */
+const FASI={pre:['G'],post:['G','A'],rie:['G','A','R'],ante:['G','A','R','E'],tutto:['G','A','R','E','C']};
+function chiaveData(t){
+  const m=String(t||'').trim().match(/^(\d{1,2})\s*[\/.\-]\s*(\d{1,2})(?:\s*[\/.\-]\s*(\d{2,4}))?$/);
+  if(!m)return null;const g=+m[1],me=+m[2];
+  if(g<1||g>31||me<1||me>12)return null;return me*100+g;
+}
+const ORDF={G:0,A:1,R:2,E:3,C:4};
+function cmpArt(a,b){return (chiaveData(a.data)??9999)-(chiaveData(b.data)??9999)||ORDF[a.fase]-ORDF[b.fase]||a.id-b.id;}
+function inOrdine(){return [...ST.articoli].sort(cmpArt);}
+function movimenti(fasi){
+  const m={};
+  (ST.es.iniziali||[]).forEach(r=>{(m[r.c]=m[r.c]||[]).push({data:'',desc:'Situazione iniziale',d:r.d||0,a:r.a||0,ini:1});});
+  inOrdine().filter(a=>fasi.includes(a.fase)).forEach(a=>a.righe.forEach(r=>{
+    (m[r.c]=m[r.c]||[]).push({data:a.data,desc:a.desc,d:r.d,a:r.a,fase:a.fase});}));
+  return m;
+}
+function saldi(fasi){const m=movimenti(fasi),o={};
+  Object.keys(m).forEach(k=>{const td=m[k].reduce((s,x)=>s+x.d,0),ta=m[k].reduce((s,x)=>s+x.a,0);
+    o[k]={td,ta,saldo:R2(td-ta)};});return o;}
+const haFase=f=>ST.articoli.some(a=>a.fase===f);
+
+/* ---------- esercizio ---------- */
+function renderEse(){
+  const e=ST.es;
+  $('#ese-box').innerHTML = e.titolo||e.consegna||(e.iniziali||[]).length
+    ? `<h2 style="font-size:17px">${e.titolo||'Esercizio'}</h2>
+       ${e.consegna?`<p style="margin:7px 0;white-space:pre-wrap">${e.consegna}</p>`:''}
+       <p class="muted">Data di chiusura ${e.data||'31/12'} \u00b7 ${(e.iniziali||[]).length} conti gi\u00e0 aperti</p>
+       ${(e.iniziali||[]).length?`<details style="margin-top:8px"><summary class="muted" style="cursor:pointer">Vedi la situazione di partenza</summary>
+         <div class="scroll" style="margin-top:6px"><table><tr><th>Conto</th><th class="n">Dare</th><th class="n">Avere</th></tr>
+         ${e.iniziali.map(r=>`<tr><td>${MC[r.c]?MC[r.c].d:r.c}</td><td class="n">${r.d?eur(r.d):''}</td><td class="n">${r.a?eur(r.a):''}</td></tr>`).join('')}
+         </table></div></details>`:''}`
+    : `<p class="muted">Nessun esercizio caricato. Puoi cominciare da zero registrando gli articoli, oppure caricare il file che ti ha dato il docente.</p>`;
+}
+$('#e-carica').onclick=()=>{$('#e-file').dataset.m='es';$('#e-file').click();};
+$('#e-riprendi').onclick=()=>{$('#e-file').dataset.m='lav';$('#e-file').click();};
+$('#e-file').onchange=ev=>{
+  const f=ev.target.files[0];if(!f)return;const modo=ev.target.dataset.m;const rd=new FileReader();
+  rd.onload=()=>{try{const j=JSON.parse(rd.result);
+    if(modo==='es'){ if(!j.es&&!j.iniziali)throw 0;
+      caricaEs(j.es||j);
+    } else { if(!j.articoli)throw 0; ST=Object.assign(ST,j); save(); renderEse(); etichetta(); alert('Ripreso: '+ST.articoli.length+' articoli.'); }
+  }catch(e){alert('Il file non sembra valido.');}};
+  rd.readAsText(f);ev.target.value='';
+};
+
+/* ---- lato docente ---- */
+if(/[?&]prof\b/.test(location.search)) $('#doc-box').classList.remove('hide');
+let dini=[vuota()];
+function renderDoc(){
+  const box=$('#d-righe');box.innerHTML='';
+  dini.forEach((r,i)=>box.appendChild(rigaNode(r,aggDoc,()=>{if(dini.length>1){dini.splice(i,1);renderDoc();}})));
+  aggDoc();
+}
+function aggDoc(){
+  const td=dini.reduce((s,r)=>s+num(r.d),0),ta=dini.reduce((s,r)=>s+num(r.a),0);
+  $('#d-td').textContent=eur(td);$('#d-ta').textContent=eur(ta);
+  $('#d-msg').innerHTML=R2(td-ta)!==0&&(td||ta)?`<div class="msg warn">La situazione di partenza non quadra: differenza di ${eur(Math.abs(td-ta))} \u20ac.</div>`:'';
+}
+$('#d-add').onclick=()=>{dini.push(vuota());renderDoc();};
+
+/* lettura del testo incollato */
+function numIt(t){t=(t||'').replace(/[\u20ac\s]/g,'');if(!/\d/.test(t))return NaN;
+  if(t.includes(','))t=t.replace(/\./g,'').replace(',','.');
+  else if(/^\d{1,3}(\.\d{3})+$/.test(t))t=t.replace(/\./g,'');
+  const n=parseFloat(t);return isFinite(n)?n:NaN;}
+const NOMI=CONTI.map(c=>({c:c.c,n:norm(c.d)})).sort((a,b)=>b.n.length-a.n.length);
+function trovaConto(riga){
+  const m=riga.match(/\b(\d{2}\.\d{2})\b/);
+  if(m&&MC[m[1]])return m[1];
+  const r=norm(riga).replace(/\bamm\.?\s*to\b/g,'ammortamento').replace(/\bf\.?\s*do\b/g,'fondo')
+    .replace(/\bsval\.?(?=\s)/g,'svalutazione').replace(/\bacc\.?\s*to\b/g,'accantonamento')
+    .replace(/\bimm\.?(?=\s)/g,'immobilizzazioni');
+  const hit=NOMI.find(x=>x.n.length>2&&r.includes(x.n));
+  if(hit)return hit.c;
+  const parole=r.replace(/[\d.,]+/g,' ').split(/[^a-z\/']+/).filter(w=>w.length>2&&w!=='dare'&&w!=='avere');
+  if(!parole.length)return null;
+  let best=null,bs=0;
+  CONTI.forEach(c=>{const nw=norm(c.d).split(/[^a-z\/']+/).filter(w=>w.length>2);if(!nw.length)return;
+    const inter=nw.filter(w=>parole.includes(w)).length,sc=inter/nw.length;
+    if(inter>0&&sc>bs){bs=sc;best=c.c;}});
+  return bs>=0.6?best:null;
+}
+$('#d-leggi').onclick=()=>{
+  const righe=$('#d-incolla').value.split(/\r?\n/).map(x=>x.trim()).filter(Boolean);
+  const nuove=[],scarti=[];
+  righe.forEach(l=>{
+    const cod=trovaConto(l);
+    if(!cod){scarti.push(l);return;}
+    const celle=l.includes('\t')?l.split('\t'):null;
+    let d=0,a=0;
+    if(celle&&celle.length>=3){
+      const nums=celle.map(numIt);
+      const idx=nums.map((n,i)=>isFinite(n)&&!/^\d{2}\.\d{2}$/.test(celle[i].trim())?i:-1).filter(i=>i>=0);
+      if(idx.length>=2){d=nums[idx[idx.length-2]]||0;a=nums[idx[idx.length-1]]||0;}
+      else if(idx.length===1){
+        const tag=celle.slice(idx[0]+1).join(' ');
+        if(/\b(A|Avere)\b/i.test(tag))a=nums[idx[0]];
+        else if(/\b(D|Dare)\b/i.test(tag))d=nums[idx[0]];
+        else if(celle.length>idx[0]+1&&!celle.slice(idx[0]+1).some(x=>x.trim()))d=nums[idx[0]];
+        else (MC[cod].e==='A'?a=nums[idx[0]]:d=nums[idx[0]]);
+      }
+    } else {
+      const senza=l.replace(/\b\d{2}\.\d{2}\b/,' ');
+      const tok=senza.match(/\d[\d.,]*/g)||[];
+      const n=tok.map(numIt).filter(isFinite);
+      if(!n.length){scarti.push(l);return;}
+      const v=n[n.length-1];
+      if(/\b(Avere|A)\s*$/i.test(senza))a=v;
+      else if(/\b(Dare|D)\s*$/i.test(senza))d=v;
+      else (MC[cod].e==='A'?a=v:d=v);
+    }
+    if(!(d||a)){scarti.push(l);return;}
+    nuove.push({c:cod,d:d?String(d).replace('.',','):'',a:a?String(a).replace('.',','):''});
+  });
+  if(nuove.length){dini=dini.filter(r=>r.c||num(r.d)||num(r.a)).concat(nuove);if(!dini.length)dini=[vuota()];renderDoc();}
+  $('#d-esito').innerHTML=`<div class="msg ${scarti.length?'warn':'ok'}">Riconosciute ${nuove.length} righe su ${righe.length}.`+
+    (scarti.length?` Non riconosciute:<br>${scarti.map(x=>'\u2022 '+x.replace(/</g,'&lt;')).join('<br>')}<br>Aggiungile a mano qui sotto.`:'')+'</div>';
+};
+$('#d-exp').onclick=()=>{
+  const es={titolo:$('#d-tit').value.trim(),consegna:$('#d-con').value.trim(),data:$('#d-dat').value.trim(),
+    fase:$('#d-fas').value,iniziali:dini.filter(r=>r.c&&(num(r.d)||num(r.a))).map(r=>({c:r.c,d:num(r.d),a:num(r.a)}))};
+  if(!es.titolo){alert('Dai un titolo all\u2019esercizio.');return;}
+  const nf='esercizio-'+es.titolo.normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/\W+/g,'-').replace(/^-|-$/g,'').toLowerCase();
+  scarica({es},nf+'.json');
+  const url=location.origin+location.pathname+'?es='+nf;
+  $('#d-link').innerHTML=`<div class="msg ok">Scaricato <b>${nf}.json</b>. Caricalo nella cartella <b>esercizi</b> del sito, poi condividi con la classe questo link:<br><code style="word-break:break-all;font-size:12px">${url}</code></div>`;
+};
+function scarica(obj,nome){
+  const b=new Blob([JSON.stringify(obj,null,1)],{type:'application/json'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=nome;a.click();
+}
+
+/* esercizi pubblicati sul sito */
+function caricaEs(es){
+  if(ST.articoli.length&&!confirm('Caricare l\u2019esercizio cancella gli articoli gi\u00e0 registrati. Procedere?'))return;
+  ST.es=es;ST.articoli=[];save();renderEse();etichetta();
+}
+fetch('esercizi/indice.json',{cache:'no-store'}).then(r=>r.ok?r.json():null).then(lista=>{
+  if(!Array.isArray(lista)||!lista.length)return;
+  $('#ese-sito').innerHTML='<div class="card plain"><span class="tiny">Esercizi del prof</span>'+
+    lista.map((x,i)=>`<div class="eseli" data-i="${i}"><b>${x.titolo}</b><span class="muted">${x.nota||''}</span></div>`).join('')+'</div>';
+  $$('#ese-sito .eseli').forEach(el=>el.onclick=()=>{
+    const x=lista[+el.dataset.i];
+    fetch('esercizi/'+x.file,{cache:'no-store'}).then(r=>r.json()).then(j=>caricaEs(j.es||j))
+      .catch(()=>alert('Non riesco ad aprire questo esercizio.'));});
+}).catch(()=>{});
+(function(){const m=location.search.match(/[?&]es=([^&]+)/);if(!m)return;
+  const nome=decodeURIComponent(m[1]).replace(/\.json$/,'');
+  fetch('esercizi/'+nome+'.json',{cache:'no-store'}).then(r=>{if(!r.ok)throw 0;return r.json();})
+    .then(j=>caricaEs(j.es||j))
+    .catch(()=>alert('Non trovo l\u2019esercizio \u201c'+nome+'\u201d sul sito.'));})();
+
+/* ---------- giornale ---------- */
+let gFiltro='';
+$$('#g-filtri button').forEach(b=>b.onclick=()=>{$$('#g-filtri button').forEach(x=>x.classList.toggle('on',x===b));gFiltro=b.dataset.f;renderGiornale();});
+const NF={G:'gestione',A:'assestamento',R:'riepilogo',E:'epilogo',C:'chiusura'};
+function artHTML(a,i,stampa){
+  return `<div class="art"><div class="h"><span class="dt">${a.data||'\u2014'}</span>
+    <span class="fase ${a.fase}">${NF[a.fase]}</span><span class="ds">${a.desc||''}</span>
+    ${stampa?'':(a.fase==='G'||a.fase==='A'?`<button class="gh" data-mod="${i}" style="padding:3px 9px;font-size:12px">Modifica</button>`:'')+`<button class="x" data-ca="${i}">\u00d7</button>`}</div>
+    <div class="b"><div class="scroll"><table>
+    <tr><th>Conto</th><th>Var.</th><th class="n">Dare</th><th class="n">Avere</th></tr>
+    ${[...a.righe.filter(r=>r.d),...a.righe.filter(r=>!r.d)].map(r=>{const c=MC[r.c],v=variazione(r.c,r.d?'D':'A');return `<tr>
+      <td${r.d?'':' class="pl"'}>${c?c.d:r.c}</td><td>${v?`<span class="v ${v}">${v}</span>`:''}</td>
+      <td class="n">${r.d?eur(r.d):''}</td><td class="n">${r.a?eur(r.a):''}</td></tr>`;}).join('')}
+    </table></div></div></div>`;
+}
+function renderGiornale(){
+  let td=0,ta=0;ST.articoli.forEach(a=>a.righe.forEach(r=>{td+=r.d;ta+=r.a;}));
+  $('#g-n').textContent=ST.articoli.length;$('#g-d').textContent=eur(td);$('#g-a').textContent=eur(ta);$('#g-x').textContent=eur(td-ta);
+  const lista=ST.articoli.map((a,i)=>({a,i})).filter(x=>!gFiltro||x.a.fase===gFiltro).sort((x,y)=>cmpArt(x.a,y.a));
+  $('#giornale').innerHTML=lista.length?lista.map(x=>artHTML(x.a,x.i,false)).join(''):'<p class="muted">Nessun articolo.</p>';
+  $$('#giornale [data-mod]').forEach(b=>b.onclick=()=>{
+    const i=+b.dataset.mod,a=ST.articoli[i];inModifica=i;
+    $('#r-fase').value=a.fase;$('#r-data').value=a.data||'';$('#r-desc').value=a.desc||'';
+    bozza=a.righe.map(r=>({c:r.c,d:r.d?String(r.d).replace('.',','):'',a:r.a?String(r.a).replace('.',','):''}));
+    renderRighe();$('#salva').textContent='Salva le modifiche';$('#annulla-mod').classList.remove('hide');
+    $('#check').innerHTML='<div class="msg warn">Stai modificando un articolo gi\u00e0 registrato. Correggi e premi <b>Salva le modifiche</b>.</div>';
+    document.querySelector('nav button[data-t="reg"]').click();});
+  $$('#giornale [data-ca]').forEach(b=>b.onclick=()=>{
+    const i=+b.dataset.ca,a=ST.articoli[i];
+    if(['R','E','C'].includes(a.fase)){alert('Le scritture automatiche di riepilogo, epilogo e chiusura si annullano dalla scheda Chiusura.');return;}
+    if(!confirm('Eliminare questo articolo?'))return;
+    const id=a.id;if(!invalidaChiusura())return;
+    const pos=ST.articoli.findIndex(x=>x.id===id);if(pos>=0)ST.articoli.splice(pos,1);
+    if(inModifica!==null)esciModifica();save();renderGiornale();});
+}
+
+/* ---------- mastri ---------- */
+function renderMastri(){
+  const m=movimenti(FASI.tutto),q=norm($('#m-q').value.trim());
+  const cod=Object.keys(m).filter(k=>!q||(MC[k]&&MC[k]._k.includes(q))).sort();
+  $('#mastri').innerHTML=cod.length?cod.map(k=>{
+    const c=MC[k],mv=m[k],td=mv.reduce((s,x)=>s+x.d,0),ta=mv.reduce((s,x)=>s+x.a,0),sd=R2(td-ta);
+    return `<details class="mastro"><summary><span class="nm">${c?c.d:k}</span>
+      <span class="sd" style="color:${sd>=0?'var(--blue)':'var(--acc)'}">${eur(Math.abs(sd))} ${sd>=0?'D':'A'}</span></summary>
+      <div class="in"><div class="muted" style="margin-bottom:5px">${k}${c?' \u00b7 '+c.cls3:''}</div><div class="scroll"><table>
+      <tr><th>Data</th><th>Descrizione</th><th class="n">Dare</th><th class="n">Avere</th></tr>
+      ${mv.map(x=>`<tr><td>${x.data||''}</td><td>${x.desc||''}</td><td class="n">${x.d?eur(x.d):''}</td><td class="n">${x.a?eur(x.a):''}</td></tr>`).join('')}
+      <tr class="tot"><td colspan="2">Totali</td><td class="n">${eur(td)}</td><td class="n">${eur(ta)}</td></tr>
+      <tr><td colspan="2" class="muted">Eccedenza</td><td class="n">${sd>0?eur(sd):''}</td><td class="n">${sd<0?eur(-sd):''}</td></tr>
+      </table></div></div></details>`;}).join(''):'<p class="muted">Nessun conto movimentato.</p>';
+}
+$('#m-q').oninput=renderMastri;
+
+/* ---------- situazione ---------- */
+let sQuale='post';
+$$('#s-filtri button').forEach(b=>b.onclick=()=>{$$('#s-filtri button').forEach(x=>x.classList.toggle('on',x===b));sQuale=b.dataset.s;renderSituazione();});
+function bloccoSit(fasi){
+  const sl=saldi(fasi),cod=Object.keys(sl).filter(k=>MC[k]&&sl[k].saldo!==0);
+  const sp=cod.filter(k=>MC[k].de==='SP'),se=cod.filter(k=>MC[k].de==='SE'),fu=cod.filter(k=>MC[k].de==='\u2014');
+  const o=a=>a.sort((x,y)=>x.localeCompare(y));
+  const att=o(sp.filter(k=>sl[k].saldo>0)),pas=o(sp.filter(k=>sl[k].saldo<0));
+  const neg=o(se.filter(k=>sl[k].saldo>0)),pos=o(se.filter(k=>sl[k].saldo<0));
+  const T=a=>R2(a.reduce((s,k)=>s+Math.abs(sl[k].saldo),0));
+  const ris=R2(T(pos)-T(neg));
+  const riga=k=>`<tr><td>${MC[k].d}</td><td class="n">${eur(Math.abs(sl[k].saldo))}</td></tr>`;
+  const quadra=R2(T(att)-(T(pas)+ris))===0;
+  return `<div class="card plain"><div class="kpi">
+    <span>Risultato<b style="color:${ris>=0?'var(--green)':'var(--red)'}">${ris>=0?'utile':'perdita'} ${eur(Math.abs(ris))}</b></span>
+    <span>Attivit\u00e0<b>${eur(T(att))}</b></span><span>Passivit\u00e0 e netto<b>${eur(T(pas)+ris)}</b></span></div>
+    <div class="msg ${quadra?'ok':'no'}">${quadra?'La situazione quadra.':'Non quadra: differenza di '+eur(Math.abs(T(att)-(T(pas)+ris)))+' \u20ac. Controlla il libro giornale.'}</div></div>
+  <h2 class="sitt">Situazione patrimoniale</h2>
+  <div class="grid due">
+    <div class="card"><span class="tiny">Attivit\u00e0</span><div class="scroll"><table>
+      ${att.map(riga).join('')}<tr class="tot"><td>Totale</td><td class="n">${eur(T(att))}</td></tr></table></div></div>
+    <div class="card"><span class="tiny">Passivit\u00e0 e patrimonio netto</span><div class="scroll"><table>
+      ${pas.map(riga).join('')}<tr><td><b>${ris>=0?'Utile':'Perdita'} d'esercizio</b></td><td class="n">${ris>=0?eur(ris):'('+eur(-ris)+')'}</td></tr>
+      <tr class="tot"><td>Totale</td><td class="n">${eur(T(pas)+ris)}</td></tr></table></div></div></div>
+  <h2 class="sitt">Situazione economica</h2>
+  <div class="grid due">
+    <div class="card"><span class="tiny">Componenti negativi</span><div class="scroll"><table>
+      ${neg.map(riga).join('')}<tr class="tot"><td>Totale</td><td class="n">${eur(T(neg))}</td></tr></table></div></div>
+    <div class="card"><span class="tiny">Componenti positivi</span><div class="scroll"><table>
+      ${pos.map(riga).join('')}<tr class="tot"><td>Totale</td><td class="n">${eur(T(pos))}</td></tr></table></div></div></div>
+  ${fu.length?`<div class="card plain"><span class="tiny">Conti da riepilogare</span>
+    <p class="muted">Non affluiscono direttamente negli schemi: vanno girati prima della chiusura.</p>
+    <div class="scroll"><table>${fu.map(riga).join('')}</table></div></div>`:''}`;
+}
+const SPIEG={pre:'Saldi iniziali e scritture di gestione: \u00e8 la situazione da cui partono gli assestamenti.',
+  post:'Comprende anche le scritture di assestamento. Si aggiorna a ogni articolo che registri.',
+  fin:'Dopo il riepilogo dei conti bilaterali: \u00e8 la situazione contabile finale da cui si redige il bilancio.'};
+function renderSituazione(){
+  $('#s-spieg').textContent=SPIEG[sQuale];
+  if(sQuale==='pre'&&!haFase('A')){$('#situazione').innerHTML='<p class="muted">Non hai ancora registrato scritture di assestamento: coincide con la situazione dopo l\u2019assestamento.</p>'+bloccoSit(FASI.pre);return;}
+  if(sQuale==='fin'&&!haFase('R')&&daRiepilogare().length){$('#situazione').innerHTML='<div class="msg warn">Ci sono ancora conti da riepilogare. La situazione finale si ottiene dopo il riepilogo, nella scheda Chiusura.</div>'+bloccoSit(FASI.rie);return;}
+  $('#situazione').innerHTML=bloccoSit(sQuale==='pre'?FASI.pre:sQuale==='fin'?FASI.rie:FASI.post);
+}
+
+/* ---------- chiusura ---------- */
+function aggiungi(fase,desc,righe){
+  ST.articoli.push({id:Date.now()+Math.random(),fase,data:ST.es.data||'31/12',desc,righe});save();
+}
+function eliminaFase(f){ST.articoli=ST.articoli.filter(a=>a.fase!==f);save();}
+function daRiepilogare(){
+  const sl=saldi(FASI.rie),out=[];
+  Object.keys(sl).forEach(k=>{const c=MC[k];
+    if(!c||sl[k].saldo===0||ESCL.includes(k))return;
+    if(c.sez==='Non iscritto in bilancio'&&c.t!=='Conto d\u2019ordine')out.push(k);});
+  return out;
+}
+function eseguiRiepilogo(){
+  let sl=saldi(FASI.rie);
+  const sIVA=IVA.reduce((s,k)=>s+(sl[k]?sl[k].saldo:0),0);
+  if(R2(sIVA)!==0||IVA.some(k=>sl[k]&&sl[k].saldo!==0)){
+    const rr=[];IVA.forEach(k=>{if(!sl[k]||sl[k].saldo===0)return;
+      const sd=sl[k].saldo;rr.push({c:k,d:sd<0?-sd:0,a:sd>0?sd:0});});
+    if(rr.length){const n=R2(sIVA);
+      rr.push(n>0?{c:'18.10',d:n,a:0}:{c:'18.10',d:0,a:-n});
+      aggiungi('R','Riepilogo dell\u2019IVA a IVA c/liquidazione',rr);}
+  }
+  sl=saldi(FASI.rie);
+  Object.keys(RIEP).forEach(k=>{
+    if(!sl[k]||sl[k].saldo===0)return;
+    const sd=sl[k].saldo,[att,pas]=RIEP[k];
+    if(sd>0)aggiungi('R','Riepilogo di '+MC[k].d,[{c:att,d:sd,a:0},{c:k,d:0,a:sd}]);
+    else aggiungi('R','Riepilogo di '+MC[k].d,[{c:k,d:-sd,a:0},{c:pas,d:0,a:-sd}]);
+  });
+}
+function renderChiusura(){
+  const sl=saldi(FASI.rie);
+  const se=Object.keys(sl).filter(k=>MC[k]&&MC[k].de==='SE'&&sl[k].saldo!==0);
+  const costi=se.filter(k=>sl[k].saldo>0),ricavi=se.filter(k=>sl[k].saldo<0);
+  const tC=R2(costi.reduce((s,k)=>s+sl[k].saldo,0)),tR=R2(ricavi.reduce((s,k)=>s-sl[k].saldo,0));
+  const ris=R2(tR-tC);
+  const fatto=f=>haFase(f);
+  const slE=saldi(FASI.ante);
+  const dr=daRiepilogare();
+  const patr=Object.keys(slE).filter(k=>MC[k]&&MC[k].de==='SP'&&slE[k].saldo!==0);
+  $('#chiusura').innerHTML=`
+  <div class="card plain"><p class="muted">Tre passaggi: prima si riepilogano i conti che possono avere saldo Dare o Avere, poi si epilogano i conti economici d'esercizio, infine si chiudono i conti patrimoniali.</p></div>
+  <div class="step ${fatto('R')?'done':''}"><div class="nn">1</div><div class="cc">
+    <b>Riepilogo dei conti bilaterali</b>
+    <p class="muted">${dr.length?dr.length+' conti da girare: '+dr.map(k=>MC[k].d).join(', ')+'.':'Nessun conto da riepilogare.'}</p>
+    <div class="row" style="margin-top:7px">
+      <button class="go" id="b-rie" ${!dr.length||fatto('E')?'disabled':''}>Esegui il riepilogo</button>
+      ${fatto('R')?'<button class="gh" id="b-rie-x">Annulla</button>':''}</div></div></div>
+  <div class="step ${fatto('E')?'done':''}"><div class="nn">2</div><div class="cc">
+    <b>Epilogo dei conti economici d'esercizio</b>
+    <p class="muted">${costi.length} conti di costo per ${eur(tC)} \u20ac e ${ricavi.length} conti di ricavo per ${eur(tR)} \u20ac.</p>
+    <div class="row" style="margin-top:7px">
+      <button class="go" id="b-epi" ${fatto('E')?'disabled':''}>Esegui l'epilogo</button>
+      ${fatto('E')?'<button class="gh" id="b-epi-x">Annulla</button>':''}</div></div></div>
+  ${fatto('E')?`<div class="card"><span class="tiny">Conto di risultato economico</span><div class="scroll"><table>
+    <tr><th>Componenti negativi</th><th class="n">${eur(tC)}</th><th>Componenti positivi</th><th class="n">${eur(tR)}</th></tr>
+    <tr class="tot"><td colspan="2">${ris>=0?'Utile':'Perdita'} d'esercizio</td><td colspan="2" class="n">${eur(Math.abs(ris))}</td></tr>
+    </table></div></div>`:''}
+  <div class="step ${fatto('C')?'done':''}"><div class="nn">3</div><div class="cc">
+    <b>Chiusura dei conti patrimoniali</b>
+    <p class="muted">${fatto('E')?patr.length+' conti patrimoniali da chiudere con il Bilancio di chiusura.':'Prima devi eseguire l\u2019epilogo.'}</p>
+    <div class="row" style="margin-top:7px">
+      <button class="go" id="b-chi" ${!fatto('E')||fatto('C')?'disabled':''}>Chiudi i conti</button>
+      ${fatto('C')?'<button class="gh" id="b-chi-x">Annulla</button>':''}</div></div></div>
+  ${fatto('C')?'<div class="msg ok">Conti chiusi. Il bilancio \u00e8 disponibile nella scheda Bilancio.</div>':''}`;
+  const b=id=>$('#'+id);
+  if(b('b-rie'))b('b-rie').onclick=()=>{eseguiRiepilogo();renderChiusura();};
+  if(b('b-rie-x'))b('b-rie-x').onclick=()=>{if(confirm('Annullare riepilogo, epilogo e chiusura?')){eliminaFase('C');eliminaFase('E');eliminaFase('R');renderChiusura();}};
+  if(b('b-epi'))b('b-epi').onclick=()=>{
+    if(!costi.length&&!ricavi.length){alert('Non ci sono conti economici d\u2019esercizio da epilogare.');return;}
+    if(costi.length)aggiungi('E','Epilogo dei componenti negativi',
+      [{c:CRE,d:tC,a:0}].concat(costi.map(k=>({c:k,d:0,a:R2(sl[k].saldo)}))));
+    if(ricavi.length)aggiungi('E','Epilogo dei componenti positivi',
+      ricavi.map(k=>({c:k,d:R2(-sl[k].saldo),a:0})).concat([{c:CRE,d:0,a:tR}]));
+    if(ris>=0)aggiungi('E','Rilevazione dell\u2019utile d\u2019esercizio',[{c:CRE,d:ris,a:0},{c:UTI,d:0,a:ris}]);
+    else aggiungi('E','Rilevazione della perdita d\u2019esercizio',[{c:PER,d:-ris,a:0},{c:CRE,d:0,a:-ris}]);
+    renderChiusura();};
+  if(b('b-epi-x'))b('b-epi-x').onclick=()=>{if(confirm('Annullare epilogo e chiusura?')){eliminaFase('C');eliminaFase('E');renderChiusura();}};
+  if(b('b-chi'))b('b-chi').onclick=()=>{
+    const att=patr.filter(k=>slE[k].saldo>0),pas=patr.filter(k=>slE[k].saldo<0);
+    const tA=R2(att.reduce((s,k)=>s+slE[k].saldo,0)),tP=R2(pas.reduce((s,k)=>s-slE[k].saldo,0));
+    if(att.length)aggiungi('C','Chiusura dei conti accesi alle attivit\u00e0',
+      [{c:BCH,d:tA,a:0}].concat(att.map(k=>({c:k,d:0,a:R2(slE[k].saldo)}))));
+    if(pas.length)aggiungi('C','Chiusura dei conti accesi alle passivit\u00e0 e al patrimonio netto',
+      pas.map(k=>({c:k,d:R2(-slE[k].saldo),a:0})).concat([{c:BCH,d:0,a:tP}]));
+    renderChiusura();};
+  if(b('b-chi-x'))b('b-chi-x').onclick=()=>{if(confirm('Annullare la chiusura?')){eliminaFase('C');renderChiusura();}};
+}
+
+/* ---------- bilancio ---------- */
+function vkey(c){return c.sez+'||'+c.lt+'|'+c.rn+'|'+c.nu+'|'+c.lt2;}
+const CE='Conto economico';
+function renderBilancio(){
+  if(!haFase('E')){$('#bilancio').innerHTML='<p class="muted">Il bilancio si pu\u00f2 redigere dopo l\u2019epilogo dei conti. Vai alla scheda Chiusura.</p>';return;}
+  const slSP=saldi(FASI.ante), slSE=saldi(FASI.post);
+  const val={};
+  const valore=(c,sd)=>{
+    if(c.sez.includes('Attivo'))return sd;
+    if(c.sez.includes('Passivo'))return -sd;
+    if(c.lt==='B'||c.nu==='20')return sd;
+    if(c.lt==='C'&&c.nu==='17')return sd;
+    if(c.lt==='D'&&c.nu==='19')return sd;
+    return -sd;};
+  Object.keys(slSP).forEach(k=>{const c=MC[k];if(!c||c.de!=='SP'||slSP[k].saldo===0||c.sez==='Non iscritto in bilancio')return;
+    const key=vkey(c);val[key]=(val[key]||0)+valore(c,slSP[k].saldo);});
+  Object.keys(slSE).forEach(k=>{const c=MC[k];if(!c||c.de!=='SE'||slSE[k].saldo===0)return;
+    const key=vkey(c);val[key]=(val[key]||0)+valore(c,slSE[k].saldo);});
+  const sgn=n=>((n.lt==='C'&&n.nu==='17')||(n.lt==='D'&&n.nu==='19'))?-1:1;
+  function sezione(sez,solo){
+    let out='',mac=null,tm=0,corpo='';
+    const chiudiM=()=>{if(mac!==null&&(tm!==0||!solo))out+=corpo+`<table><tr class="tot"><td>Totale ${mac}</td><td class="n">${eur(tm)}</td></tr></table>`;};
+    SCHEMA[sez].forEach(n=>{
+      if(n.lv==='M'){chiudiM();mac=n.t;tm=0;corpo=`<h3>${n.lt?n.lt+') ':''}${n.t}</h3>`;return;}
+      if(n.lv==='S'){corpo+=`<div class="sb">${n.rn} \u2014 ${n.t}</div>`;return;}
+      const v=R2(val[sez+'||'+n.k]||0);tm=R2(tm+v*(sez==='Conto economico'?(((n.lt==='C'&&n.nu==='17')||(n.lt==='D'&&n.nu==='19'))?-1:1):1));
+      if(v===0&&solo)return;
+      corpo+=`<table><tr><td class="pl">${(n.nu?n.nu+') ':'')+(n.lt2?n.lt2+') ':'')}${n.t}</td><td class="n">${v?eur(v):'\u2014'}</td></tr></table>`;});
+    chiudiM();return out;
+  }
+  const tot=(sez,lt)=>R2(SCHEMA[sez].filter(n=>n.lv==='V'&&n.lt===lt).reduce((s,n)=>s+(val[sez+'||'+n.k]||0)*(sez===CE?sgn(n):1),0));
+  const A=tot(CE,'A'),B=tot(CE,'B'),C=tot(CE,'C'),D=tot(CE,'D'),IMP=R2(val[CE+'||||20|']||0);
+  const risultato=R2(A-B+C+D-IMP);
+  $('#bilancio').innerHTML=`
+  <div class="card plain"><span class="tiny">Bilancio d'esercizio in forma ordinaria</span>
+    <p class="muted">Articoli 2424 e 2425 del codice civile. Sono mostrate solo le voci movimentate.</p>
+    ${daRiepilogare().length?'<div class="msg no">Ci sono ancora conti da riepilogare ('+daRiepilogare().map(k=>MC[k].d).join(', ')+'): finch\u00e9 non li giri, lo stato patrimoniale non quadra. Vai alla scheda Chiusura.</div>':''}</div>
+  <h2 style="font-size:16px;margin-top:14px">Stato patrimoniale</h2>
+  <div class="grid due">
+    <div class="card"><span class="tiny">Attivo</span>${sezione('Stato patrimoniale \u2014 Attivo',true)}</div>
+    <div class="card"><span class="tiny">Passivo</span>${sezione('Stato patrimoniale \u2014 Passivo',true)}</div>
+  </div>
+  <h2 style="font-size:16px;margin-top:16px">Conto economico</h2>
+  <div class="card">${sezione(CE,true)}
+    <table style="margin-top:10px">
+      <tr class="sub"><td>Differenza tra valore e costi della produzione (A \u2212 B)</td><td class="n">${eur(A-B)}</td></tr>
+      <tr><td>Proventi e oneri finanziari (C)</td><td class="n">${eur(C)}</td></tr>
+      <tr><td>Rettifiche di valore di attivit\u00e0 e passivit\u00e0 finanziarie (D)</td><td class="n">${eur(D)}</td></tr>
+      <tr><td>Imposte sul reddito dell'esercizio</td><td class="n">${eur(IMP)}</td></tr>
+      <tr class="tot"><td>${risultato>=0?'Utile':'Perdita'} dell'esercizio</td><td class="n">${eur(Math.abs(risultato))}</td></tr>
+    </table></div>`;
+}
+
+/* ---------- stampa ---------- */
+['nome','cogn','cla'].forEach(k=>{const id={nome:'p-nome',cogn:'p-cogn',cla:'p-cla'}[k];
+  $('#'+id).value=ST.ident[k]||'';$('#'+id).oninput=e=>{ST.ident[k]=e.target.value;save();etichetta();};});
+let pSel=['gio','sit'];
+$$('#p-sel button').forEach(b=>b.onclick=()=>{const p=b.dataset.p;
+  if(pSel.includes(p))pSel=pSel.filter(x=>x!==p);else pSel.push(p);
+  b.classList.toggle('on',pSel.includes(p));});
+$('#p-go').onclick=()=>{
+  const i=ST.ident;
+  if(!i.nome||!i.cogn||!i.cla){$('#p-msg').innerHTML='<div class="msg no">Prima di stampare scrivi nome, cognome e classe.</div>';return;}
+  if(!pSel.length){$('#p-msg').innerHTML='<div class="msg no">Scegli almeno una cosa da stampare.</div>';return;}
+  $('#p-msg').innerHTML='';
+  let h=`<div class="pgh"><b>${i.cogn} ${i.nome}</b> \u2014 classe ${i.cla}
+    <div style="font-size:11px">${ST.es.titolo||'Contabilit\u00e0 generale'} \u00b7 stampato il ${new Date().toLocaleDateString('it-IT')}</div></div>`;
+  if(pSel.includes('gio'))h+='<h3>Libro giornale</h3>'+(ST.articoli.length?inOrdine().map((a,k)=>artHTML(a,k,true)).join(''):'<p>Nessun articolo.</p>');
+  if(pSel.includes('mas')){renderMastri();h+='<h3 class="brk">Conti di mastro</h3>'+
+    $('#mastri').innerHTML.replace(/<details/g,'<div').replace(/<\/details>/g,'</div>').replace(/<summary/g,'<div').replace(/<\/summary>/g,'</div>');}
+  if(pSel.includes('sit')){h+='<h3 class="brk">Situazione contabile</h3>'+bloccoSit(FASI.post);}
+  if(pSel.includes('bil')){renderBilancio();h+='<h3 class="brk">Bilancio d\u2019esercizio</h3>'+$('#bilancio').innerHTML;}
+  $('#stampa-area').innerHTML=h;window.print();
+};
+$('#exp').onclick=()=>scarica(ST,'contabilita-'+(ST.ident.cogn||'lavoro').replace(/\W+/g,'-').toLowerCase()+'.json');
+$('#azzera').onclick=()=>{if(!confirm('Cancellare tutto il lavoro su questo dispositivo?'))return;
+  ST={ident:{nome:'',cogn:'',cla:''},es:{titolo:'',consegna:'',data:'31/12',fase:'G',iniziali:[]},articoli:[]};save();location.reload();};
+
+$('#prom-exp').onclick=()=>scarica(ST,'contabilita-'+(ST.ident.cogn||'lavoro').replace(/\W+/g,'-').toLowerCase()+'.json');
+renderRighe();renderDoc();renderEse();etichetta();
+</script>
+</body>
+</html>
