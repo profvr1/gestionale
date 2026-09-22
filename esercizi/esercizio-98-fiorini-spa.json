@@ -1,0 +1,280 @@
+{
+ "es": {
+  "titolo": "Esercizio 98 - Fiorini spa",
+  "consegna": "La Situazione contabile della Fiorini spa al 31/12/n, prima delle scritture di assestamento, è quella caricata nel programma.\n\nEsegui le scritture di assestamento, poi l'epilogo e la chiusura dei conti, e infine redigi il bilancio d'esercizio. Tieni presente che:\n\na) si ammortizzano i costi di sviluppo al 20%, i fabbricati al 3% (il valore dell'edificio è di 1.092.000 euro), gli impianti e macchinari al 12%, gli automezzi al 20%;\nb) i prodotti già consegnati per i quali si deve ancora emettere fattura ammontano a 8.500 euro + IVA;\nc) il portafoglio crediti è sottoposto a svalutazione globale dello 0,50%;\nd) sul c/c bancario sono maturati interessi attivi di 160 euro (lordi di ritenuta fiscale) e interessi passivi di 2.920 euro da addebitare l'01/03 dell'anno successivo; spese di tenuta conto 13,50 euro;\ne) si determina la quota di TFR di competenza considerando che la variazione dell'indice ISTAT è 0,80% e che tutti i dipendenti mantengono il TFR in azienda;\nf) il prestito obbligazionario è formato da 40.000 obbligazioni da 10 euro emesse alla pari l'01/09/n (commissione di collocamento 600 euro); gli interessi annui al tasso 1,50% si corrispondono l'01/09; durata quadriennale con rimborso integrale alla scadenza;\ng) è in corso la costruzione interna di un'attrezzatura industriale, cui si attribuisce un costo di 72.000 euro;\nh) le rimanenze sono: materie prime 160.000 euro, semilavorati 60.000 euro, prodotti finiti 280.000 euro;\ni) il contratto di leasing operativo prevede canoni semestrali anticipati di 14.250 euro alle date 01/12 e 01/06;\nl) i costi di assicurazione riguardano un premio annuo di 8.760 euro pagato anticipatamente l'01/07 di ciascun esercizio;\nm) si liquida l'IVA del periodo;\nn) le imposte di competenza del periodo ammontano a 109.980 euro;\no) si girano i saldi del c/c bancario, dell'IVA c/liquidazione e degli istituti previdenziali ai rispettivi conti di credito o di debito.",
+  "data": "31/12",
+  "fase": "A",
+  "iniziali": [
+   {
+    "c": "01.03",
+    "d": 192000,
+    "a": 0
+   },
+   {
+    "c": "02.01",
+    "d": 1560000,
+    "a": 0
+   },
+   {
+    "c": "02.02",
+    "d": 156000,
+    "a": 0
+   },
+   {
+    "c": "02.07",
+    "d": 72000,
+    "a": 0
+   },
+   {
+    "c": "01.13",
+    "d": 0,
+    "a": 76800
+   },
+   {
+    "c": "02.11",
+    "d": 0,
+    "a": 262080
+   },
+   {
+    "c": "02.12",
+    "d": 0,
+    "a": 56160
+   },
+   {
+    "c": "02.17",
+    "d": 0,
+    "a": 28800
+   },
+   {
+    "c": "02.31",
+    "d": 30000,
+    "a": 0
+   },
+   {
+    "c": "05.01",
+    "d": 1392000,
+    "a": 0
+   },
+   {
+    "c": "05.06",
+    "d": 45400,
+    "a": 0
+   },
+   {
+    "c": "05.20",
+    "d": 0,
+    "a": 28748
+   },
+   {
+    "c": "06.01",
+    "d": 27960,
+    "a": 0
+   },
+   {
+    "c": "06.02",
+    "d": 5760,
+    "a": 0
+   },
+   {
+    "c": "06.04",
+    "d": 22360,
+    "a": 0
+   },
+   {
+    "c": "18.20",
+    "d": 20162,
+    "a": 0
+   },
+   {
+    "c": "08.20",
+    "d": 2399,
+    "a": 0
+   },
+   {
+    "c": "10.01",
+    "d": 0,
+    "a": 960000
+   },
+   {
+    "c": "10.04",
+    "d": 0,
+    "a": 192000
+   },
+   {
+    "c": "10.06",
+    "d": 0,
+    "a": 145000
+   },
+   {
+    "c": "12.01",
+    "d": 0,
+    "a": 212580
+   },
+   {
+    "c": "13.01",
+    "d": 0,
+    "a": 400000
+   },
+   {
+    "c": "14.01",
+    "d": 0,
+    "a": 1250000
+   },
+   {
+    "c": "14.06",
+    "d": 0,
+    "a": 8400
+   },
+   {
+    "c": "15.01",
+    "d": 0,
+    "a": 37217
+   },
+   {
+    "c": "15.02",
+    "d": 0,
+    "a": 51160
+   },
+   {
+    "c": "15.05",
+    "d": 0,
+    "a": 200
+   },
+   {
+    "c": "18.11",
+    "d": 0,
+    "a": 30720
+   },
+   {
+    "c": "19.11",
+    "d": 84000,
+    "a": 0
+   },
+   {
+    "c": "19.12",
+    "d": 0,
+    "a": 84000
+   },
+   {
+    "c": "20.01",
+    "d": 0,
+    "a": 5969560
+   },
+   {
+    "c": "20.10",
+    "d": 11954,
+    "a": 0
+   },
+   {
+    "c": "20.40",
+    "d": 0,
+    "a": 15000
+   },
+   {
+    "c": "21.06",
+    "d": 260800,
+    "a": 0
+   },
+   {
+    "c": "21.05",
+    "d": 54600,
+    "a": 0
+   },
+   {
+    "c": "30.01",
+    "d": 4050000,
+    "a": 0
+   },
+   {
+    "c": "30.10",
+    "d": 0,
+    "a": 8145
+   },
+   {
+    "c": "31.01",
+    "d": 328125,
+    "a": 0
+   },
+   {
+    "c": "31.02",
+    "d": 206640,
+    "a": 0
+   },
+   {
+    "c": "31.04",
+    "d": 27000,
+    "a": 0
+   },
+   {
+    "c": "31.05",
+    "d": 17916,
+    "a": 0
+   },
+   {
+    "c": "31.08",
+    "d": 13128,
+    "a": 0
+   },
+   {
+    "c": "31.10",
+    "d": 65200,
+    "a": 0
+   },
+   {
+    "c": "31.12",
+    "d": 195600,
+    "a": 0
+   },
+   {
+    "c": "31.15",
+    "d": 235,
+    "a": 0
+   },
+   {
+    "c": "31.16",
+    "d": 36,
+    "a": 0
+   },
+   {
+    "c": "32.02",
+    "d": 40375,
+    "a": 0
+   },
+   {
+    "c": "33.01",
+    "d": 592000,
+    "a": 0
+   },
+   {
+    "c": "33.02",
+    "d": 177600,
+    "a": 0
+   },
+   {
+    "c": "37.01",
+    "d": 157840,
+    "a": 0
+   },
+   {
+    "c": "39.02",
+    "d": 7400,
+    "a": 0
+   },
+   {
+    "c": "40.31",
+    "d": 0,
+    "a": 750
+   },
+   {
+    "c": "41.01",
+    "d": 230,
+    "a": 0
+   },
+   {
+    "c": "41.09",
+    "d": 600,
+    "a": 0
+   }
+  ]
+ }
+}
