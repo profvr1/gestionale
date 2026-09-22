@@ -53,6 +53,12 @@ tr.sub td{font-weight:700;background:var(--panel)}
 .riga .nat{grid-column:1/-1;font-size:11px;color:var(--soft);line-height:1.3;min-height:0}
 .riga .nat:empty{display:none}
 @media(min-width:720px){.riga,.intest{grid-template-columns:minmax(0,1fr) 130px 130px 28px;gap:8px}}
+.barra{display:flex;gap:8px;align-items:center;flex-wrap:wrap;padding:8px 0 4px}
+.barra .st{font-size:12px;font-weight:700;display:flex;align-items:center;gap:5px;margin-right:auto}
+.barra .st i{width:9px;height:9px;border-radius:50%;display:inline-block;background:var(--soft)}
+.barra .st.ok{color:var(--green)}.barra .st.ok i{background:var(--green)}
+.barra .st.no{color:var(--acc)}.barra .st.no i{background:var(--acc)}
+.barra button{padding:7px 13px;font-size:13px}
 .avviso{font-size:12px;color:var(--soft);background:var(--panel);border-radius:8px;padding:7px 10px;margin:8px 0;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
 .avviso b{color:var(--ink)}
 .eseli{display:flex;gap:9px;align-items:center;padding:10px 12px;border:1px solid var(--line);border-radius:9px;margin:7px 0;cursor:pointer;background:var(--bg)}
@@ -138,14 +144,19 @@ footer{margin-top:22px;padding-top:12px;border-top:1px solid var(--line);color:v
   <button data-t="stp">Stampa</button>
 </nav>
 
-<div class="avviso noprint" id="promemoria"><span>Il lavoro resta <b>solo su questo dispositivo</b>. Prima di chiudere scaricalo.</span><button class="gh" id="prom-exp" style="padding:4px 10px">Scarica ora</button></div>
+<div class="barra noprint">
+  <span class="st" id="st-sal"><i></i><span id="st-txt">Nessun lavoro</span></span>
+  <button class="go" id="b-salva">Salva per continuare dopo</button>
+  <button class="gh" id="b-apri">Apri un file</button>
+  <input type="file" id="e-file" accept=".json,application/json,.pdf,application/pdf" class="hide">
+</div>
 <!-- ===== ESERCIZIO ===== -->
 <section id="ese">
   <div class="card plain" id="ese-box"></div>
-  <div class="row">
-    <button class="gh" id="e-carica">Carica un esercizio</button>
-    <button class="gh" id="e-riprendi">Riprendi un lavoro salvato</button>
-    <input type="file" id="e-file" accept=".json" class="hide">
+  <div class="card plain" style="border-style:dashed">
+    <p style="margin:0 0 8px"><b>Hai cominciato il lavoro su un altro computer, o il prof ti ha dato un file?</b></p>
+    <button class="gh" id="e-apri">Apri un file</button>
+    <p class="muted" style="margin:8px 0 0">Va bene sia il file salvato da te sia quello dell'esercizio del prof: il programma li riconosce da solo.</p>
   </div>
   <div id="ese-sito"></div>
   <details class="card plain hide" id="doc-box" style="margin-top:14px">
@@ -265,15 +276,12 @@ footer{margin-top:22px;padding-top:12px;border-top:1px solid var(--line);color:v
   </div>
   <div id="p-msg"></div>
   <div class="row">
-    <button class="go" id="p-go">Stampa o salva in PDF</button>
+    <button class="go" id="p-go">Stampa o salva il PDF da consegnare</button>
   </div>
   <div class="card plain" style="margin-top:18px">
-    <span class="tiny">Il tuo lavoro</span>
-    <p class="muted">Si salva da solo su questo dispositivo. In laboratorio i computer sono condivisi: scarica il file prima di chiudere.</p>
-    <div class="row">
-      <button class="gh" id="exp">Scarica il mio lavoro</button>
-      <button class="gh" id="azzera" style="color:var(--red);border-color:var(--red)">Ricomincia da zero</button>
-    </div>
+    <span class="tiny">Il PDF e il file salvato sono due cose diverse</span>
+    <p class="muted">Il <b>PDF</b> serve per consegnare il lavoro al prof: si legge ma non si pu&ograve; riaprire nel programma. Per continuare l'esercizio un'altra volta usa <b>Salva per continuare dopo</b>, in alto.</p>
+    <button class="gh" id="azzera" style="color:var(--red);border-color:var(--red)">Ricomincia da zero</button>
   </div>
 </section>
 
@@ -303,7 +311,23 @@ const ESCL=['90.01','90.02','18.01','18.02'];
 const KEY='gest-spa-v2';
 let ST={ident:{nome:'',cogn:'',cla:''},es:{titolo:'',consegna:'',data:'31/12',fase:'G',iniziali:[]},articoli:[]};
 try{const r=localStorage.getItem(KEY);if(r)ST=Object.assign(ST,JSON.parse(r));}catch(e){}
-function save(){try{localStorage.setItem(KEY,JSON.stringify(ST));}catch(e){}}
+function save(sporco){if(sporco!==false)ST.modIl=Date.now();try{localStorage.setItem(KEY,JSON.stringify(ST));}catch(e){}statoSalvataggio();}
+function haLavoro(){return ST.articoli.length>0||(ST.es.iniziali||[]).length>0;}
+function daSalvare(){return haLavoro()&&(ST.salIl||0)<(ST.modIl||0);}
+function statoSalvataggio(){
+  const el=$('#st-sal'),tx=$('#st-txt');if(!el)return;
+  el.className='st '+(!haLavoro()?'':daSalvare()?'no':'ok');
+  tx.textContent=!haLavoro()?'Nessun lavoro':daSalvare()?'Da salvare':'Salvato alle '+new Date(ST.salIl).toLocaleTimeString('it-IT',{hour:'2-digit',minute:'2-digit'});
+}
+function nomeFileLavoro(){
+  const i=ST.ident,p=['LAVORO',i.cogn,i.nome,i.cla].filter(Boolean).join('-');
+  return p.normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^\w-]+/g,'-').replace(/-+/g,'-')+'.json';
+}
+function salvaLavoro(){
+  if(!haLavoro()){alert('Non c\u2019\u00e8 ancora niente da salvare.');return;}
+  ST.salIl=Date.now();save(false);scarica(ST,nomeFileLavoro());
+}
+window.addEventListener('beforeunload',e=>{if(daSalvare()){e.preventDefault();e.returnValue='';}});
 function etichetta(){
   const i=ST.ident, p=[ST.es.titolo,[i.nome,i.cogn].filter(Boolean).join(' '),i.cla].filter(Boolean);
   $('#az-lab').textContent=p.join(' \u00b7 ');
@@ -466,16 +490,24 @@ function renderEse(){
          </table></div></details>`:''}`
     : `<p class="muted">Nessun esercizio caricato. Puoi cominciare da zero registrando gli articoli, oppure caricare il file che ti ha dato il docente.</p>`;
 }
-$('#e-carica').onclick=()=>{$('#e-file').dataset.m='es';$('#e-file').click();};
-$('#e-riprendi').onclick=()=>{$('#e-file').dataset.m='lav';$('#e-file').click();};
+function apriFile(){$('#e-file').click();}
+$('#b-apri').onclick=apriFile;$('#e-apri').onclick=apriFile;$('#b-salva').onclick=salvaLavoro;
 $('#e-file').onchange=ev=>{
-  const f=ev.target.files[0];if(!f)return;const modo=ev.target.dataset.m;const rd=new FileReader();
-  rd.onload=()=>{try{const j=JSON.parse(rd.result);
-    if(modo==='es'){ if(!j.es&&!j.iniziali)throw 0;
-      caricaEs(j.es||j);
-    } else { if(!j.articoli)throw 0; ST=Object.assign(ST,j); save(); renderEse(); etichetta(); alert('Ripreso: '+ST.articoli.length+' articoli.'); }
-  }catch(e){alert('Il file non sembra valido.');}};
-  rd.readAsText(f);ev.target.value='';
+  const f=ev.target.files[0];ev.target.value='';if(!f)return;
+  if(/\.pdf$/i.test(f.name)||f.type==='application/pdf'){
+    alert('Questo \u00e8 il PDF: serve solo da consegnare al prof e non si pu\u00f2 riaprire nel programma.\n\nPer continuare il lavoro devi aprire il file che hai salvato con \u201cSalva per continuare dopo\u201d: il suo nome comincia con LAVORO e finisce con .json.');return;}
+  const rd=new FileReader();
+  rd.onload=()=>{let j;try{j=JSON.parse(rd.result);}catch(e){alert('Questo file non \u00e8 stato salvato da questo programma.');return;}
+    if(Array.isArray(j.articoli)){
+      if(haLavoro()&&!confirm('Riaprendo questo file sostituisci il lavoro che hai adesso sullo schermo. Procedere?'))return;
+      ST=Object.assign({ident:{nome:'',cogn:'',cla:''},es:{titolo:'',consegna:'',data:'31/12',fase:'G',iniziali:[]},articoli:[]},j);
+      ST.salIl=Date.now();ST.modIl=ST.salIl;save(false);
+      ['nome','cogn','cla'].forEach(k=>{const el=$('#p-'+k);if(el)el.value=ST.ident[k]||'';});
+      renderEse();etichetta();alert('Lavoro ripreso: '+ST.articoli.length+' articoli registrati.');
+    } else if(j.es||j.iniziali){ caricaEs(j.es||j); }
+    else alert('Questo file non \u00e8 stato salvato da questo programma.');
+  };
+  rd.readAsText(f);
 };
 
 /* ---- lato docente ---- */
@@ -568,7 +600,8 @@ function scarica(obj,nome){
 /* esercizi pubblicati sul sito */
 function caricaEs(es){
   if(ST.articoli.length&&!confirm('Caricare l\u2019esercizio cancella gli articoli gi\u00e0 registrati. Procedere?'))return;
-  ST.es=es;ST.articoli=[];save();renderEse();etichetta();
+  ST.es=es;ST.articoli=[];ST.modIl=ST.salIl=Date.now();save(false);renderEse();etichetta();
+  alert('Esercizio caricato. Buon lavoro!');
 }
 fetch('esercizi/indice.json',{cache:'no-store'}).then(r=>r.ok?r.json():null).then(lista=>{
   if(!Array.isArray(lista)||!lista.length)return;
@@ -844,13 +877,12 @@ $('#p-go').onclick=()=>{
   if(pSel.includes('sit')){h+='<h3 class="brk">Situazione contabile</h3>'+bloccoSit(FASI.post);}
   if(pSel.includes('bil')){renderBilancio();h+='<h3 class="brk">Bilancio d\u2019esercizio</h3>'+$('#bilancio').innerHTML;}
   $('#stampa-area').innerHTML=h;window.print();
+  setTimeout(()=>{$('#p-msg').innerHTML='<div class="msg warn">Hai il PDF da consegnare. Se vuoi continuare l\u2019esercizio un\u2019altra volta, premi anche <b>Salva per continuare dopo</b> qui in alto.</div>';},400);
 };
-$('#exp').onclick=()=>scarica(ST,'contabilita-'+(ST.ident.cogn||'lavoro').replace(/\W+/g,'-').toLowerCase()+'.json');
 $('#azzera').onclick=()=>{if(!confirm('Cancellare tutto il lavoro su questo dispositivo?'))return;
   ST={ident:{nome:'',cogn:'',cla:''},es:{titolo:'',consegna:'',data:'31/12',fase:'G',iniziali:[]},articoli:[]};save();location.reload();};
 
-$('#prom-exp').onclick=()=>scarica(ST,'contabilita-'+(ST.ident.cogn||'lavoro').replace(/\W+/g,'-').toLowerCase()+'.json');
-renderRighe();renderDoc();renderEse();etichetta();
+renderRighe();renderDoc();renderEse();etichetta();statoSalvataggio();
 </script>
 </body>
 </html>
