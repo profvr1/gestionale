@@ -1,0 +1,125 @@
+{
+ "es": {
+  "titolo": "Assestamento e bilancio - Alfa spa",
+  "consegna": "La situazione contabile al 31/12, prima dell'assestamento, è quella caricata nel programma. Esegui le scritture di assestamento sulla base delle informazioni seguenti, poi l'epilogo e la chiusura dei conti, e infine redigi il bilancio d'esercizio.\n\nLe rimanenze finali di merci ammontano a 41.500 euro.\nIl fitto passivo di 12.000 euro è il canone annuo pagato il 1° ottobre, relativo ai dodici mesi successivi.\nIl premio di assicurazione di 3.600 euro è stato pagato il 1° novembre e copre un anno.\nSul mutuo passivo di 70.000 euro, ottenuto il 1° ottobre al tasso del 4,80%, gli interessi semestrali si pagano posticipatamente.\nSi ammortizzano i fabbricati al 3% e gli automezzi al 20% del costo storico.\nLa quota di TFR maturata nell'esercizio ammonta a 8.200 euro.\nSi stima una perdita presunta sui crediti di 3.100 euro.",
+  "data": "31/12",
+  "fase": "A",
+  "iniziali": [
+   {
+    "c": "08.20",
+    "d": 2000,
+    "a": 0
+   },
+   {
+    "c": "18.20",
+    "d": 48200,
+    "a": 0
+   },
+   {
+    "c": "05.01",
+    "d": 62000,
+    "a": 0
+   },
+   {
+    "c": "37.04",
+    "d": 38000,
+    "a": 0
+   },
+   {
+    "c": "06.01",
+    "d": 4400,
+    "a": 0
+   },
+   {
+    "c": "02.01",
+    "d": 180000,
+    "a": 0
+   },
+   {
+    "c": "02.07",
+    "d": 36000,
+    "a": 0
+   },
+   {
+    "c": "30.05",
+    "d": 310000,
+    "a": 0
+   },
+   {
+    "c": "33.01",
+    "d": 74000,
+    "a": 0
+   },
+   {
+    "c": "33.02",
+    "d": 22000,
+    "a": 0
+   },
+   {
+    "c": "32.01",
+    "d": 12000,
+    "a": 0
+   },
+   {
+    "c": "31.01",
+    "d": 6400,
+    "a": 0
+   },
+   {
+    "c": "31.08",
+    "d": 3600,
+    "a": 0
+   },
+   {
+    "c": "41.02",
+    "d": 1200,
+    "a": 0
+   },
+   {
+    "c": "14.01",
+    "d": 0,
+    "a": 54300
+   },
+   {
+    "c": "12.01",
+    "d": 0,
+    "a": 18000
+   },
+   {
+    "c": "02.11",
+    "d": 0,
+    "a": 28800
+   },
+   {
+    "c": "02.17",
+    "d": 0,
+    "a": 14400
+   },
+   {
+    "c": "13.03",
+    "d": 0,
+    "a": 70000
+   },
+   {
+    "c": "15.01",
+    "d": 0,
+    "a": 9900
+   },
+   {
+    "c": "10.01",
+    "d": 0,
+    "a": 150000
+   },
+   {
+    "c": "20.06",
+    "d": 0,
+    "a": 452000
+   },
+   {
+    "c": "20.32",
+    "d": 0,
+    "a": 2400
+   }
+  ]
+ }
+}
