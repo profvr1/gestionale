@@ -307,7 +307,9 @@ const MC={}; CONTI.forEach(c=>MC[c.c]=c);
 const norm=s=>(s||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[\u2019']/g,"'");
 CONTI.forEach(c=>c._k=norm(c.c+' '+c.d+' '+c.g));
 const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
-const eur=n=>(Math.round((n||0)*100)/100).toLocaleString('it-IT',{minimumFractionDigits:2,maximumFractionDigits:2});
+const mig=s=>s.replace(/\B(?=(\d{3})+(?!\d))/g,'.');
+const eur=n=>{n=Math.round((n||0)*100)/100;const g=n<0?'-':'';const p=Math.abs(n).toFixed(2).split('.');return g+mig(p[0])+','+p[1];};
+const eur0=n=>{n=Math.round(n||0);const g=n<0?'-':'';return g+mig(String(Math.abs(n)));};
 const num=v=>{const n=parseFloat(String(v).replace(',','.'));return isFinite(n)?n:0;};
 const R2=n=>Math.round(n*100)/100;
 const CRE='90.01', UTI='10.40', PER='10.41', BCH='18.02';
@@ -830,41 +832,45 @@ function renderBilancio(){
     const key=vkey(c);val[key]=(val[key]||0)+valore(c,slSP[k].saldo);});
   Object.keys(slSE).forEach(k=>{const c=MC[k];if(!c||c.de!=='SE'||slSE[k].saldo===0)return;
     const key=vkey(c);val[key]=(val[key]||0)+valore(c,slSE[k].saldo);});
+  Object.keys(val).forEach(k=>{val[k]=Math.round(val[k]);});
   const sgn=n=>((n.lt==='C'&&n.nu==='17')||(n.lt==='D'&&n.nu==='19'))?-1:1;
   function sezione(sez,solo){
     let out='',mac=null,tm=0,corpo='';
-    const chiudiM=()=>{if(mac!==null&&(tm!==0||!solo))out+=corpo+`<table><tr class="tot"><td>Totale ${mac}</td><td class="n">${eur(tm)}</td></tr></table>`;};
+    const chiudiM=()=>{if(mac!==null&&(tm!==0||!solo))out+=corpo+`<table><tr class="tot"><td>Totale ${mac}</td><td class="n">${eur0(tm)}</td></tr></table>`;};
     SCHEMA[sez].forEach(n=>{
       if(n.lv==='M'){chiudiM();mac=n.t;tm=0;corpo=`<h3>${n.lt?n.lt+') ':''}${n.t}</h3>`;return;}
       if(n.lv==='S'){corpo+=`<div class="sb">${n.rn} \u2014 ${n.t}</div>`;return;}
       const v=R2(val[sez+'||'+n.k]||0);tm=R2(tm+v*(sez==='Conto economico'?(((n.lt==='C'&&n.nu==='17')||(n.lt==='D'&&n.nu==='19'))?-1:1):1));
       if(v===0&&solo)return;
-      corpo+=`<table><tr><td class="pl">${(n.nu?n.nu+') ':'')+(n.lt2?n.lt2+') ':'')}${n.t}</td><td class="n">${v?eur(v):'\u2014'}</td></tr></table>`;});
+      corpo+=`<table><tr><td class="pl">${(n.nu?n.nu+') ':(n.rn?n.rn+' ':''))+(n.lt2?n.lt2+') ':'')}${n.t}</td><td class="n">${v?eur0(v):'\u2014'}</td></tr></table>`;});
     chiudiM();return out;
   }
   const totSez=sez=>R2(SCHEMA[sez].filter(n=>n.lv==='V').reduce((a,n)=>a+(val[sez+'||'+n.k]||0),0));
   const tot=(sez,lt)=>R2(SCHEMA[sez].filter(n=>n.lv==='V'&&n.lt===lt).reduce((s,n)=>s+(val[sez+'||'+n.k]||0)*(sez===CE?sgn(n):1),0));
   const A=tot(CE,'A'),B=tot(CE,'B'),C=tot(CE,'C'),D=tot(CE,'D'),IMP=R2(val[CE+'||||20|']||0);
   const risultato=R2(A-B+C+D-IMP);
+  const dAtt=totSez('Stato patrimoniale \u2014 Attivo'),dPas=totSez('Stato patrimoniale \u2014 Passivo');
+  const scarto=Math.round(dAtt-dPas);
   $('#bilancio').innerHTML=`
   <div class="card plain"><span class="tiny">Bilancio d'esercizio in forma ordinaria</span>
-    <p class="muted">Articoli 2424 e 2425 del codice civile. Sono mostrate solo le voci movimentate.</p>
+    <p class="muted">Articoli 2424 e 2425 del codice civile. Importi in unit\u00e0 di euro, come prescrive l'art. 2423. Sono mostrate solo le voci movimentate.</p>
+    ${scarto!==0?'<div class="msg warn">Gli arrotondamenti all\u2019unit\u00e0 di euro lasciano una differenza di '+eur0(Math.abs(scarto))+' \u20ac fra attivo e passivo: va rettificata nelle Altre riserve.</div>':''}
     ${daRiepilogare().length?'<div class="msg no">Ci sono ancora conti da riepilogare ('+daRiepilogare().map(k=>MC[k].d).join(', ')+'): finch\u00e9 non li giri, lo stato patrimoniale non quadra. Vai alla scheda Chiusura.</div>':''}</div>
   <h2 style="font-size:16px;margin-top:14px">Stato patrimoniale</h2>
   <div class="grid due">
     <div class="card"><span class="tiny">Attivo</span>${sezione('Stato patrimoniale \u2014 Attivo',true)}
-      <table><tr class="gt"><td>TOTALE ATTIVO</td><td class="n">${eur(totSez('Stato patrimoniale \u2014 Attivo'))}</td></tr></table></div>
+      <table><tr class="gt"><td>TOTALE ATTIVO</td><td class="n">${eur0(totSez('Stato patrimoniale \u2014 Attivo'))}</td></tr></table></div>
     <div class="card"><span class="tiny">Passivo</span>${sezione('Stato patrimoniale \u2014 Passivo',true)}
-      <table><tr class="gt"><td>TOTALE PASSIVO</td><td class="n">${eur(totSez('Stato patrimoniale \u2014 Passivo'))}</td></tr></table></div>
+      <table><tr class="gt"><td>TOTALE PASSIVO</td><td class="n">${eur0(totSez('Stato patrimoniale \u2014 Passivo'))}</td></tr></table></div>
   </div>
   <h2 style="font-size:16px;margin-top:16px">Conto economico</h2>
   <div class="card">${sezione(CE,true)}
     <table style="margin-top:10px">
-      <tr class="sub"><td>Differenza tra valore e costi della produzione (A \u2212 B)</td><td class="n">${eur(A-B)}</td></tr>
-      <tr><td>Proventi e oneri finanziari (C)</td><td class="n">${eur(C)}</td></tr>
-      <tr><td>Rettifiche di valore di attivit\u00e0 e passivit\u00e0 finanziarie (D)</td><td class="n">${eur(D)}</td></tr>
-      <tr><td>Imposte sul reddito dell'esercizio</td><td class="n">${eur(IMP)}</td></tr>
-      <tr class="tot"><td>${risultato>=0?'Utile':'Perdita'} dell'esercizio</td><td class="n">${eur(Math.abs(risultato))}</td></tr>
+      <tr class="sub"><td>Differenza tra valore e costi della produzione (A \u2212 B)</td><td class="n">${eur0(A-B)}</td></tr>
+      <tr><td>Proventi e oneri finanziari (C)</td><td class="n">${eur0(C)}</td></tr>
+      <tr><td>Rettifiche di valore di attivit\u00e0 e passivit\u00e0 finanziarie (D)</td><td class="n">${eur0(D)}</td></tr>
+      <tr><td>Imposte sul reddito dell'esercizio</td><td class="n">${eur0(IMP)}</td></tr>
+      <tr class="tot"><td>${risultato>=0?'Utile':'Perdita'} dell'esercizio</td><td class="n">${eur0(Math.abs(risultato))}</td></tr>
     </table></div>`;
 }
 
