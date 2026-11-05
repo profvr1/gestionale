@@ -1,7 +1,7 @@
 # Strumenti didattici — promemoria
 
 A cura del prof. Vittorio Riccardi · economia aziendale
-Ultimo aggiornamento: ottobre 2026
+Ultimo aggiornamento: novembre 2026
 
 Questo file serve a ritrovare in fretta come funziona tutto, fra sei mesi o
 se il lavoro passa a qualcun altro. Sta nel repository insieme al codice.
@@ -10,11 +10,14 @@ se il lavoro passa a qualcun altro. Sta nel repository insieme al codice.
 
 ## 1. Che cosa c'è
 
-**Piano dei conti S.p.A.** — consultazione, schema di bilancio, allenamento.
+**Piano dei conti** — consultazione, schema di bilancio, allenamento.
+Tre piani con un tasto in alto: ditta individuale, S.n.c., S.p.A.
+Link diretti: `.../piano-dei-conti/?piano=ditta`, `?piano=snc`, `?piano=spa` (senza niente apre la S.p.A.).
 Sito: `https://profvr1.github.io/piano-dei-conti/`
 Repository: `profvr1/piano-dei-conti`, file unico `index.html`
 
-**Gestionale di contabilità** — libro giornale, mastri, situazione, chiusura, bilancio.
+**Gestionale contabile** — libro giornale, mastri, situazione, chiusura, bilancio.
+Stessi tre piani: lo sceglie il docente nell'esercizio, oppure lo studente se lavora senza esercizio.
 Sito: `https://profvr1.github.io/gestionale/`
 Pannello docente: `https://profvr1.github.io/gestionale/?prof`
 Repository: `profvr1/gestionale`, file `index.html` + cartella `esercizi/`
@@ -47,7 +50,8 @@ perché i file si chiamano entrambi `index.html` e nei Download si confondono.
 
 1. Apri il gestionale con `?prof` in fondo all'indirizzo
 2. Scheda **Esercizio** → *Per il docente*
-3. Compila titolo, consegna, data di chiusura, fase di partenza
+3. Scegli il **piano dei conti** in alto (ditta, S.n.c., S.p.A.), poi compila titolo,
+   consegna, data di chiusura, fase di partenza
 4. Incolla la situazione di partenza nel riquadro (una riga per conto:
    nome o codice, importo, D oppure A) e premi **Leggi le righe incollate**
 5. Controlla che i totali Dare e Avere coincidano
@@ -87,6 +91,37 @@ versamenti in conto capitale non aumentano il capitale sociale.
 **Due sviste del manuale, corrette nei dati:** i proventi finanziari
 (40.01–40.03) e le rimanenze finali di materie (37.10–37.12) erano
 etichettati "costo d'esercizio" pur avendo eccedenza Avere.
+
+---
+
+## 4 bis. I tre piani dei conti (novembre 2026)
+
+Fonti: i piani Barale-Ricci di terza, quarta e quinta, AFM e RIM
+(PDF in `piani-dei-conti/fonti/` nei file del progetto).
+
+Ogni piano **somma AFM e RIM** e **commerciale e industriale**, per scelta:
+i ragazzi imparano il nome del conto, il codice serve solo a raggruppare.
+
+| Piano | Conti | Come è fatto |
+|---|---|---|
+| Ditta individuale | 212 | piano di terza (AFM + 10 conti esteri del RIM) + 28 conti industriali |
+| S.n.c. | 236 | piano di quarta (AFM + RIM) + 30 conti industriali |
+| S.p.A. | 303 | i 292 di prima + 11: conti esteri del RIM e merci estero |
+
+Quando lo stesso conto ha codici diversi fra AFM e RIM si tiene quello AFM.
+I conti industriali aggiunti a ditta e S.n.c. usano codici liberi negli stessi
+raggruppamenti della S.p.A. (materie in 04/30/37, prodotti in 04/20/21).
+Per ditta e S.n.c. il bilancio è lo schema semplificato del libro.
+
+Nella ditta il giroconto di *Prelevamenti extragestione* e *Titolare c/ritenute
+subite* al *Patrimonio netto* lo fa lo studente: il programma automatizza solo
+riepilogo, epilogo e chiusura.
+
+Corretti 5 conti S.p.A. che avevano il nome sporcato ("Accantonamento per
+responsabilità civile E,") e i tre accantonamenti classificati come transitori.
+
+Gli esercizi pubblicati prima di novembre 2026 non dicono il piano: si aprono
+con la S.p.A., come prima.
 
 ---
 
